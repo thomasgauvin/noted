@@ -1,8 +1,9 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useReducer } from "react";
 import { OnChangeJSON, Remirror, useHelpers, useKeymap } from "@remirror/react";
 import { EditorComponent } from "@remirror/react";
 import { Menu } from "./RemirrorMenu";
 import { RemirrorMarkdownEditor } from "./RemirrorMarkdownEditor";
+import DirectoryNode from "../../models/DirectoryNode";
 
 // Hooks can be added to the context without the need for creating custom components
 const hooks = [
@@ -10,7 +11,7 @@ const hooks = [
     const { getJSON, getMarkdown } = useHelpers();
 
     const handleSaveShortcut = useCallback(
-      ({ state }) => {
+      ({ state }: any) => {
         console.log(`Save to backend: ${JSON.stringify(getJSON(state))}`);
 
         return true; // Prevents any further key handlers from being run.
@@ -23,68 +24,41 @@ const hooks = [
   },
 ];
 
-export const RemirrorComponent: React.FC = () => {
-  const [markdownContent, setMarkdownContent] = useState(basicContent);
-
+export const RemirrorComponent: React.FC = ({
+  selectedFile,
+}: {
+  selectedFile: DirectoryNode | null;
+}) => {
   useEffect(() => {
-    console.log(`Markdown content: ${markdownContent}`);
-  }, [markdownContent]);
+    console.log(`Markdown content: ${selectedFile?.fileContent}`);
+  }, [selectedFile?.fileContent]);
+
+  if (!selectedFile?.fileContent) {
+    return <div>Empty file</div>;
+  }
+
+  const handleMarkdownChange = (markdown: string) => {
+    selectedFile?.updateFileContent(markdown);
+  };
 
   return (
     <div style={{ padding: 16 }}>
+      <div>
+        <button
+          className={` bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300`}
+          onClick={() => {
+            selectedFile?.saveFileContent();
+          }}
+        >
+          Save
+        </button>
+      </div>
       <RemirrorMarkdownEditor
-        initialContent={markdownContent}
+        key={selectedFile?.getFullPath()}
+        initialContent={selectedFile?.fileContent}
         hooks={hooks}
-        persistMarkdown={(markdown: string) => setMarkdownContent(markdown)}
+        persistMarkdown={handleMarkdownChange}
       ></RemirrorMarkdownEditor>
     </div>
   );
 };
-
-const basicContent = `
-**Markdown** content is the _best_
-
-<br>
-
-# Heading 1
-
-<br>
-
-## Heading 2
-
-<br>
-
-### Heading 3
-
-<br>
-
-#### Heading 4
-
-<br>
-
-##### Heading 5
-
-<br>
-
-###### Heading 6
-
-<br>
-
-> Blockquote
-
-\`\`\`ts
-const a = 'asdf';
-\`\`\`
-
-playtime is just beginning
-
-## List support
-
-- an unordered
-  - list is a thing
-    - of beauty
-
-1. As is
-2. An ordered
-3. List
-`;
