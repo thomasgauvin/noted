@@ -42,8 +42,8 @@ export const RemirrorComponent: React.FC = ({
   };
 
   return (
-    <div style={{ padding: 16 }}>
-      <div>
+    <div className="ml-4 flex flex-col">
+      <div className="flex flex-row justify-end m-1">
         <button
           className={` bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300`}
           onClick={() => {
@@ -53,12 +53,14 @@ export const RemirrorComponent: React.FC = ({
           Save
         </button>
       </div>
-      <RemirrorMarkdownEditor
-        key={selectedFile?.getFullPath()}
-        initialContent={selectedFile?.fileContent}
-        hooks={hooks}
-        persistMarkdown={handleMarkdownChange}
-      ></RemirrorMarkdownEditor>
+      <div className="flex-1 overflow-y-scroll">
+        <RemirrorMarkdownEditor
+          key={selectedFile?.getFullPath()}
+          initialContent={selectedFile?.fileContent}
+          hooks={hooks}
+          persistMarkdown={handleMarkdownChange}
+        ></RemirrorMarkdownEditor>
+      </div>
     </div>
   );
 };

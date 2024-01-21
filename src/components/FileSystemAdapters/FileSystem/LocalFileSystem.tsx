@@ -99,13 +99,13 @@ export const LocalFileSystem = ({
   };
 
   return (
-    <div>
+    <div className="min-w-16 bg-zinc-50">
       {selectedDirectory && (
         <div className="divide-y font-semibold text-base">
           <div className="text-sm p-2 text-slate-500">
             {selectedDirectory.name}
           </div>
-          <div className="font-normal">
+          <div className="font-normal p-1">
             <Folder
               node={selectedDirectory}
               depth={0}
@@ -114,7 +114,9 @@ export const LocalFileSystem = ({
           </div>
         </div>
       )}
-      <button onClick={handleDirectorySelect}>Select Directory</button>
+      {!selectedDirectory && (
+        <button onClick={handleDirectorySelect}>Select Directory</button>
+      )}
     </div>
   );
 };

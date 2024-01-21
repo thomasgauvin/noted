@@ -39,6 +39,7 @@ import type { CreateEditorStateProps, Extension } from "remirror";
 import type { RemirrorProps, UseThemeProps } from "@remirror/react";
 import { Menu as CustomMenu } from "./RemirrorMenu";
 import { OnChangeMarkdown } from "./OnChangeMarkdown";
+import "./index.css";
 
 interface ReactEditorProps
   extends Pick<CreateEditorStateProps, "stringHandler">,
@@ -92,8 +93,13 @@ export const RemirrorMarkdownEditor: FC<
   });
 
   return (
-    <Remirror manager={manager} autoFocus {...rest}>
-      <MarkdownToolbar />
+    <Remirror
+      manager={manager}
+      autoFocus
+      {...rest}
+      classNames={["overflow-hidden"]}
+    >
+      {/* <MarkdownToolbar /> */}
       <EditorComponent />
       <OnChangeMarkdown
         persistMarkdown={(markdown) => {

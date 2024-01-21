@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { LocalFileSystem } from "../components/FileSystemAdapters/FileSystem/LocalFileSystem";
-import { RemirrorComponent } from "../components/MarkdownEditor/RemirrorComponent";
+import { FileEditor } from "../components/MarkdownEditor/FileEditor";
 import DirectoryNode from "../models/DirectoryNode";
 
 export const EditorPage: React.FC = () => {
@@ -11,7 +11,7 @@ export const EditorPage: React.FC = () => {
   );
 
   return (
-    <div className="EditorPage">
+    <div className="EditorPage flex h-dvh w-vw overflow-hidden">
       <LocalFileSystem
         selectedFile={selectedFile}
         setSelectedFile={setSelectedFile}
@@ -20,7 +20,7 @@ export const EditorPage: React.FC = () => {
         selectedFileContent={selectedFileContent}
         setSelectedFileContent={setSelectedFileContent}
       />
-      <RemirrorComponent selectedFile={selectedFile} />
+      <FileEditor selectedFile={selectedFile} />
     </div>
   );
 };

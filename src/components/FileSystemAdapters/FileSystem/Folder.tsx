@@ -1,6 +1,6 @@
 import { useState } from "react";
 import DirectoryNode from "../../../models/DirectoryNode";
-import { ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronUp } from "lucide-react";
 
 export function Folder({
   node,
@@ -18,31 +18,41 @@ export function Folder({
     <div key={node.name}>
       {depth === 0 ? null : (
         <div
-          className="p-2 hover:bg-zinc-200 rounded"
+          className="p-1 hover:bg-zinc-200/70 rounded flex"
           onClick={() => {
             setExpanded(!expanded);
           }}
         >
-          <ChevronRight />
-          <h3 className="text-sm font-semibold">{node.name}</h3>
+          {expanded ? (
+            <ChevronDown className="h-5 w-5 cursor-pointer hover:bg-zinc-300 rounded" />
+          ) : (
+            <ChevronRight className="h-5 w-5 cursor-pointer hover:bg-zinc-300 rounded" />
+          )}
+          <div className="pl-0.5 text-sm">{node.name}</div>
         </div>
       )}
-      <div className={`ml-4 ${expanded ? "block" : "hidden"}`}>
+      <div
+        className={`${depth === 0 ? "" : "ml-4"} ${
+          expanded ? "block" : "hidden"
+        }`}
+      >
         {node.children.map((child) => (
           <div key={child.name}>
             {child.children.length === 0 ? ( // Render file
               <div
                 className={`ml-${(depth + 1) * 20} cursor-pointer
                 text-sm
-                  p-2 hover:bg-zinc-200 rounded ${
+                  p-1 hover:bg-zinc-200/70 rounded ${
                     child.unsavedChanges ? "italic" : ""
                   }`}
                 onClick={() => {
                   handleFileSelect(child);
                 }}
               >
-                {child.name}
-                {child.unsavedChanges ? "*" : ""}
+                <div className="pl-1">
+                  {child.name}
+                  {child.unsavedChanges ? "*" : ""}
+                </div>
               </div>
             ) : (
               <Folder
