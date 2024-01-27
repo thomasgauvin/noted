@@ -16,7 +16,7 @@
     
 *   ✅show only png, webp, jpeg, jpg, svg, md files
     
-    *   prevent the upload of images that aren't in this list
+    *   prevent the upload of images that aren't in this list of file extensions
         
     *   make it save when adding an image
         
@@ -30,15 +30,17 @@
         
     *   add intro screen to select 'directory' with option to start new, or select an existing list of directories
         
-*   better support conflict in names
+    *   have a create modal with the create and open existing
+        
+*   Files & folder support
     
-*   support folder renames
-    
+    *   better support conflict in names
+        
+    *   support folder renames
+        
 *   ✅ better handle folder open/tree structure after create file
     
 *   add refresh for files, either button or automatic
-    
-*   have a create modal with the create and open existing
     
 *   ✅ when changing to page, it should not auto-focus
     

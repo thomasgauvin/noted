@@ -30,8 +30,8 @@ class DirectoryNode {
     this.fileHandle = fileHandle;
     this.directoryHandle = directoryHandle;
     this.parent = parent;
-    this.fileContent = "";
-    this.unsavedChanges = false;
+    this.fileContent = fileContent || "";
+    this.unsavedChanges = unsavedChanges || false;
     this.id = id || Math.random().toString(36).substr(2, 9);
     this.blobUrl = blobUrl;
     this.replacedImages = replacedImages || {};
@@ -170,6 +170,7 @@ class DirectoryNode {
         return new Error("File already exists"); //not expected to happen since it doesn't fail when it finds the file
       }
 
+      //@ts-ignore
       await this.fileHandle.move(newFileName);
 
       console.log("renamed file, updating name", this.fileHandle.name);

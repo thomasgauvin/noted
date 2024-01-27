@@ -1,12 +1,12 @@
 import DirectoryNode from "../../models/DirectoryNode";
 import { RemirrorComponent } from "./RemirrorComponent";
 
-export const FileEditor: React.FC = ({
+export const FileEditor = ({
   selectedFile,
   setSelectedFile,
 }: {
-  selectedFile: DirectoryNode | null;
-  setSelectedFile: (file: DirectoryNode) => void;
+  selectedFile: DirectoryNode | undefined;
+  setSelectedFile: (file: DirectoryNode) => Promise<void> | undefined;
 }) => {
   const handleOnChangeFileName = async (
     e: React.FormEvent<HTMLInputElement>
@@ -21,11 +21,13 @@ export const FileEditor: React.FC = ({
     }
   };
 
+  if (!selectedFile) return <></>;
+
   return (
     <>
       <input
         placeholder="Untitled"
-        value={selectedFile?.getName()}
+        value={selectedFile?.getName() || "Untitled"}
         onChange={handleOnChangeFileName}
         className="text-5xl font-bold w-full bg-transparent focus:outline-none pb-4"
       />

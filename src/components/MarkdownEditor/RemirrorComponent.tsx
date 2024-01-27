@@ -1,7 +1,5 @@
-import { useCallback, useState, useEffect, useReducer } from "react";
-import { OnChangeJSON, Remirror, useHelpers, useKeymap } from "@remirror/react";
-import { EditorComponent } from "@remirror/react";
-import { Menu } from "./RemirrorMenu";
+import { useCallback } from "react";
+import { useHelpers, useKeymap } from "@remirror/react";
 import { RemirrorMarkdownEditor } from "./RemirrorMarkdownEditor";
 import DirectoryNode from "../../models/DirectoryNode";
 import { useDebouncedCallback } from "use-debounce";
@@ -11,7 +9,7 @@ import { DelayedPromiseCreator } from "@remirror/core";
 // Hooks can be added to the context without the need for creating custom components
 const hooks = [
   () => {
-    const { getJSON, getMarkdown } = useHelpers();
+    const { getJSON } = useHelpers();
 
     const handleSaveShortcut = useCallback(
       ({ state }: any) => {
@@ -40,7 +38,7 @@ interface SetProgress {
   setProgress: (progress: number) => void;
 }
 
-export const RemirrorComponent: React.FC = ({
+export const RemirrorComponent = ({
   selectedFile,
   setSelectedFile,
 }: {
@@ -68,61 +66,62 @@ export const RemirrorComponent: React.FC = ({
   const customUploadHandler = (files: FileWithProgress[]): DelayedImage[] => {
     const delayedImages: DelayedImage[] = [];
 
-    files.forEach(({ file, progress }) => {
-      const delayedImage: DelayedImage = async () => {
-        // Your upload logic here
-        // You may use XMLHttpRequest, fetch, or any other method for file upload
-        const blob = new Blob([file], { type: file.type });
-        const blobUrl = URL.createObjectURL(blob);
+    files.forEach(({ file }) => {
+      const delayedImage: DelayedImage =
+        async (): Promise<ImageExtensionAttributes> => {
+          // Your upload logic here
+          // You may use XMLHttpRequest, fetch, or any other method for file upload
+          const blob = new Blob([file], { type: file.type });
+          const blobUrl = URL.createObjectURL(blob);
 
-        const imageAttributes: ImageExtensionAttributes = {
-          src: blobUrl,
-          fileName: file.name, // You may adjust this based on your file naming requirements
-          alt: file.name, // You may adjust this based on your file naming requirements
-          title: file.name, // You may adjust this based on your file naming requirements
-        };
+          const imageAttributes: ImageExtensionAttributes = {
+            src: blobUrl,
+            fileName: file.name, // You may adjust this based on your file naming requirements
+            alt: file.name, // You may adjust this based on your file naming requirements
+            title: file.name, // You may adjust this based on your file naming requirements
+          };
 
-        // Check if the parent directory handle exists
-        if (selectedFile.parent?.directoryHandle) {
-          const parentDirectoryHandle = selectedFile.parent.directoryHandle;
+          // Check if the parent directory handle exists
+          if (selectedFile.parent?.directoryHandle) {
+            const parentDirectoryHandle = selectedFile.parent.directoryHandle;
 
-          // Create a new file in the parent directory using the file name
-          try {
-            console.log(
-              "getting the writeable writing the blob to the file system"
-            );
+            // Create a new file in the parent directory using the file name
+            try {
+              console.log(
+                "getting the writeable writing the blob to the file system"
+              );
 
-            const newFileHandle = await parentDirectoryHandle.getFileHandle(
-              file.name,
-              {
-                create: true,
-              }
-            );
+              const newFileHandle = await parentDirectoryHandle.getFileHandle(
+                file.name,
+                {
+                  create: true,
+                }
+              );
 
-            // Write the blob data to the new file
+              // Write the blob data to the new file
 
-            console.log("writing the blob to the file system");
-            console.log(blob.size);
-            const writeAble = await newFileHandle.createWritable();
-            await writeAble.write(blob);
-            writeAble.close();
+              console.log("writing the blob to the file system");
+              console.log(blob.size);
+              const writeAble = await newFileHandle.createWritable();
+              await writeAble.write(blob);
+              writeAble.close();
 
-            selectedFile.replacedImages[blobUrl] = "./" + file.name;
-          } catch (e) {
-            console.error(e);
+              selectedFile.replacedImages[blobUrl] = "./" + file.name;
+            } catch (e) {
+              console.error(e);
+            }
+
+            // Return the image attributes
+            return imageAttributes;
+          } else {
+            // Handle the case where the parent directory handle doesn't exist
+            // You may want to throw an error or handle it differently based on your requirements
+            console.error("Parent directory handle not found.");
+            return imageAttributes;
           }
 
-          // Return the image attributes
           return imageAttributes;
-        } else {
-          // Handle the case where the parent directory handle doesn't exist
-          // You may want to throw an error or handle it differently based on your requirements
-          console.error("Parent directory handle not found.");
-          return null;
-        }
-
-        return imageAttributes;
-      };
+        };
 
       delayedImages.push(delayedImage);
     });

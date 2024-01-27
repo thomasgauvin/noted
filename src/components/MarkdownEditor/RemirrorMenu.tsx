@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useCommands, useActive, useHelpers } from "@remirror/react";
 
 export const Menu = ({
@@ -8,7 +7,7 @@ export const Menu = ({
 }) => {
   const { toggleBold, focus } = useCommands();
   const active = useActive();
-  const { getJSON, getMarkdown } = useHelpers();
+  const { getMarkdown } = useHelpers();
 
   return (
     <button

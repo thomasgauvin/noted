@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { LocalFileSystem } from "../components/FileSystemAdapters/FileSystem/LocalFileSystem";
 import { FileEditor } from "../components/MarkdownEditor/FileEditor";
-import DirectoryNode, { createDirectoryNode } from "../models/DirectoryNode";
+import DirectoryNode from "../models/DirectoryNode";
 
 export const EditorPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<DirectoryNode | undefined>(
@@ -9,36 +9,20 @@ export const EditorPage: React.FC = () => {
   ); // [selectedFile, setSelectedFile
   const [selectedDirectory, setSelectedDirectory] =
     useState<DirectoryNode | null>(null);
-  const [contextMenuVisible, setContextMenuVisible] = useState(false);
-  const [contextMenuPosition, setContextMenuPosition] = useState({
-    x: 0,
-    y: 0,
-  });
 
-  const handleSetSelectedFile = async (node: DirectoryNode) => {
+  const handleSetSelectedFile = async (node: DirectoryNode | undefined) => {
+    if (!node) return;
     await node.loadFileContent();
     setSelectedFile(node);
   };
 
   return (
-    <div
-      className="EditorPage flex h-dvh w-vw overflow-hidden"
-      onClick={() => {
-        setContextMenuVisible(false);
-      }}
-      onContextMenu={(e) => {
-        setContextMenuVisible(false);
-      }}
-    >
+    <div className="EditorPage flex h-dvh w-vw overflow-hidden">
       <LocalFileSystem
         selectedDirectory={selectedDirectory}
         setSelectedDirectory={setSelectedDirectory}
         selectedFile={selectedFile}
         setSelectedFile={handleSetSelectedFile}
-        contextMenuVisible={contextMenuVisible}
-        setContextMenuVisible={setContextMenuVisible}
-        contextMenuPosition={contextMenuPosition}
-        setContextMenuPosition={setContextMenuPosition}
       />
       <div className="flex-1 flex flex-col overflow-scroll">
         <div className="w-full max-w-3xl mx-auto pt-24 flex flex-1 flex-col">

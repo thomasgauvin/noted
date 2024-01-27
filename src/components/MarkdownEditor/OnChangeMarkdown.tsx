@@ -1,10 +1,5 @@
-import { useEffect, useCallback } from "react";
-import {
-  useCommands,
-  useActive,
-  useHelpers,
-  useDocChanged,
-} from "@remirror/react";
+import { useCallback } from "react";
+import { useHelpers, useDocChanged } from "@remirror/react";
 
 export const OnChangeMarkdown = ({
   persistMarkdown,

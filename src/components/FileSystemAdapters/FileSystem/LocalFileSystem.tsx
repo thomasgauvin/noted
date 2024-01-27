@@ -2,11 +2,10 @@
 // and pass them down to the Folder component. The Folder component is then responsible for rendering
 // and calling them
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import DirectoryNode, {
   createDirectoryNode,
 } from "../../../models/DirectoryNode";
-import { set } from "remirror";
 import { Folder } from "./Folder";
 
 //sample react function
@@ -18,9 +17,8 @@ export const LocalFileSystem = ({
 }: {
   selectedDirectory: DirectoryNode | null;
   setSelectedDirectory: (directory: DirectoryNode | null) => void;
-  selectedFile: DirectoryNode | null;
-  setSelectedFile: (file: DirectoryNode | undefined) => void;
-  selectedFileName: string | null;
+  selectedFile: DirectoryNode | undefined;
+  setSelectedFile: (node: DirectoryNode | undefined) => Promise<void>;
 }) => {
   useEffect(() => {
     const fetchEntries = async () => {

@@ -5,7 +5,7 @@
 
 import "@remirror/styles/all.css";
 
-import React, { FC, PropsWithChildren, useCallback, useState } from "react";
+import { FC, PropsWithChildren, useCallback } from "react";
 import jsx from "refractor/lang/jsx.js";
 import typescript from "refractor/lang/typescript.js";
 import { ExtensionPriority } from "remirror";
@@ -31,15 +31,12 @@ import {
 import {
   EditorComponent,
   MarkdownToolbar,
-  OnChangeJSON,
   Remirror,
-  useHelpers,
   useRemirror,
 } from "@remirror/react";
 import type { CreateEditorStateProps, Extension } from "remirror";
 import type { RemirrorProps, UseThemeProps } from "@remirror/react";
 import { useExtensionEvent } from "@remirror/react";
-import { Menu as CustomMenu } from "./RemirrorMenu";
 import { OnChangeMarkdown } from "./OnChangeMarkdown";
 import { DelayedImage, FileWithProgress } from "./RemirrorComponent";
 
@@ -64,13 +61,15 @@ const OnClickLink = ({
   selectedFile,
   setSelectedFile,
 }: {
-  selectedFile: DirectoryNode;
-  setSelectedFile: (file: DirectoryNode) => void;
+  selectedFile: DirectoryNode | undefined;
+  setSelectedFile: (file: DirectoryNode) => void | undefined;
 }) => {
   useExtensionEvent(
     LinkExtension,
     "onClick",
     useCallback((_, data) => {
+      if (!selectedFile) return false;
+
       const urlWithoutProtocol = data.href.replace(/(^\w+:|^)\/\//, ""); //remove protocol, even when remirror adds just //
       const urlWithHttps = "https://" + urlWithoutProtocol;
       const url = new URL(urlWithHttps);
@@ -132,6 +131,7 @@ export const RemirrorMarkdownEditor: FC<
        */
       new HardBreakExtension(),
       new ImageExtension({
+        //@ts-ignore
         uploadHandler: customUploadHandler,
       }),
     ],
@@ -158,7 +158,7 @@ export const RemirrorMarkdownEditor: FC<
       />
       <OnClickLink
         selectedFile={selectedFile}
-        setSelectedFile={setSelectedFile}
+        setSelectedFile={setSelectedFile || (() => {})}
       />
       {children}
     </Remirror>

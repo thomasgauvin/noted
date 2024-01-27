@@ -1,6 +1,5 @@
-import { FilePlus, Trash } from "lucide-react";
+import { Trash } from "lucide-react";
 import * as ContextMenu from "@radix-ui/react-context-menu";
-import DirectoryNode from "../../../models/DirectoryNode";
 
 const RightClickMenu = ({ onDelete }: { onDelete: () => void }) => {
   return (

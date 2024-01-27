@@ -16,7 +16,7 @@ export function Folder({
   node: DirectoryNode;
   depth: number;
   handleFileSelect: (file: DirectoryNode) => void;
-  currentlySelectedFile: DirectoryNode | null;
+  currentlySelectedFile: DirectoryNode | undefined;
   handleDeleteFile: (node: DirectoryNode) => void;
   handleCreateFile: (node: DirectoryNode) => void;
   handleCreateFolder: (node: DirectoryNode) => void;
