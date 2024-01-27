@@ -5,7 +5,7 @@
 
 import "@remirror/styles/all.css";
 
-import React, { FC, PropsWithChildren, useCallback } from "react";
+import React, { FC, PropsWithChildren, useCallback, useState } from "react";
 import jsx from "refractor/lang/jsx.js";
 import typescript from "refractor/lang/typescript.js";
 import { ExtensionPriority } from "remirror";
@@ -17,6 +17,7 @@ import {
   CodeExtension,
   HardBreakExtension,
   HeadingExtension,
+  ImageExtension,
   ItalicExtension,
   LinkExtension,
   ListItemExtension,
@@ -37,9 +38,13 @@ import {
 } from "@remirror/react";
 import type { CreateEditorStateProps, Extension } from "remirror";
 import type { RemirrorProps, UseThemeProps } from "@remirror/react";
+import { useExtensionEvent } from "@remirror/react";
 import { Menu as CustomMenu } from "./RemirrorMenu";
 import { OnChangeMarkdown } from "./OnChangeMarkdown";
+import { DelayedImage, FileWithProgress } from "./RemirrorComponent";
+
 import "./index.css";
+import DirectoryNode from "../../models/DirectoryNode";
 
 interface ReactEditorProps
   extends Pick<CreateEditorStateProps, "stringHandler">,
@@ -47,20 +52,64 @@ interface ReactEditorProps
   placeholder?: string;
   theme?: UseThemeProps["theme"];
   persistMarkdown?: (markdown: string) => void;
+  customUploadHandler?: (files: FileWithProgress[]) => DelayedImage[];
+  setSelectedFile: (file: DirectoryNode) => void;
+  selectedFile: DirectoryNode;
 }
 
 export interface MarkdownEditorProps
   extends Partial<Omit<ReactEditorProps, "stringHandler">> {}
+
+const OnClickLink = ({
+  selectedFile,
+  setSelectedFile,
+}: {
+  selectedFile: DirectoryNode;
+  setSelectedFile: (file: DirectoryNode) => void;
+}) => {
+  useExtensionEvent(
+    LinkExtension,
+    "onClick",
+    useCallback((_, data) => {
+      const urlWithoutProtocol = data.href.replace(/(^\w+:|^)\/\//, ""); //remove protocol, even when remirror adds just //
+      const urlWithHttps = "https://" + urlWithoutProtocol;
+      const url = new URL(urlWithHttps);
+      if (!url.host.startsWith(".")) {
+        //open in new tab
+        window.open(urlWithHttps, "_blank"); // Open the link in a new tab or window
+        return true;
+      }
+      const filePath = decodeURI(urlWithoutProtocol);
+      setSelectedFile(
+        selectedFile.findNodeByRelativePath(filePath)?.getCopy() ?? selectedFile
+      );
+      return true;
+    }, [])
+  );
+
+  return <></>;
+};
 
 /**
  * The editor which is used to create the annotation. Supports formatting.
  */
 export const RemirrorMarkdownEditor: FC<
   PropsWithChildren<MarkdownEditorProps>
-> = ({ placeholder, children, theme, persistMarkdown, ...rest }) => {
+> = ({
+  placeholder,
+  children,
+  theme,
+  persistMarkdown,
+  customUploadHandler,
+  selectedFile,
+  setSelectedFile,
+  ...rest
+}) => {
   const extensions: () => Extension[] = useCallback(
     () => [
-      new LinkExtension({ autoLink: true }),
+      new LinkExtension({
+        defaultProtocol: "https://",
+      }),
       new PlaceholderExtension({ placeholder }),
       new BoldExtension(),
       new StrikeExtension(),
@@ -71,7 +120,6 @@ export const RemirrorMarkdownEditor: FC<
       new OrderedListExtension(),
       new ListItemExtension({
         priority: ExtensionPriority.High,
-        enableCollapsible: true,
       }),
       new CodeExtension(),
       new CodeBlockExtension({ supportedLanguages: [jsx, typescript] }),
@@ -83,6 +131,9 @@ export const RemirrorMarkdownEditor: FC<
        * e.g. in a list item
        */
       new HardBreakExtension(),
+      new ImageExtension({
+        uploadHandler: customUploadHandler,
+      }),
     ],
     [placeholder]
   );
@@ -95,16 +146,19 @@ export const RemirrorMarkdownEditor: FC<
   return (
     <Remirror
       manager={manager}
-      autoFocus
       {...rest}
-      classNames={["overflow-hidden"]}
+      classNames={["overflow-hidden", "outline-none", "prose", "prose-zinc"]}
     >
-      {/* <MarkdownToolbar /> */}
+      <MarkdownToolbar />
       <EditorComponent />
       <OnChangeMarkdown
         persistMarkdown={(markdown) => {
           if (persistMarkdown) persistMarkdown(markdown);
         }}
+      />
+      <OnClickLink
+        selectedFile={selectedFile}
+        setSelectedFile={setSelectedFile}
       />
       {children}
     </Remirror>

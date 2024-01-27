@@ -4,6 +4,9 @@ import { EditorComponent } from "@remirror/react";
 import { Menu } from "./RemirrorMenu";
 import { RemirrorMarkdownEditor } from "./RemirrorMarkdownEditor";
 import DirectoryNode from "../../models/DirectoryNode";
+import { useDebouncedCallback } from "use-debounce";
+import { ImageExtensionAttributes } from "remirror/extensions";
+import { DelayedPromiseCreator } from "@remirror/core";
 
 // Hooks can be added to the context without the need for creating custom components
 const hooks = [
@@ -24,41 +27,120 @@ const hooks = [
   },
 ];
 
+export type DelayedImage = DelayedPromiseCreator<ImageExtensionAttributes>;
+
+export interface FileWithProgress {
+  file: File;
+  progress: SetProgress;
+}
+
+interface SetProgress {
+  // Define the SetProgress interface if not already available
+  // You might need to adjust this based on your actual implementation
+  setProgress: (progress: number) => void;
+}
+
 export const RemirrorComponent: React.FC = ({
   selectedFile,
+  setSelectedFile,
 }: {
-  selectedFile: DirectoryNode | null;
+  selectedFile: DirectoryNode;
+  setSelectedFile: (file: DirectoryNode) => void;
 }) => {
-  useEffect(() => {
-    console.log(`Markdown content: ${selectedFile?.fileContent}`);
-  }, [selectedFile?.fileContent]);
-
-  if (!selectedFile?.fileContent) {
-    return <div>Empty file</div>;
-  }
+  const debouncedPersistMarkdown = useDebouncedCallback(
+    // function
+    (markdown) => persistMarkdown(markdown),
+    // delay in ms
+    500
+  );
 
   const handleMarkdownChange = (markdown: string) => {
+    setSelectedFile(selectedFile?.updateFileContent(markdown).getCopy()); //updating state to cause rerender (direct updates to objects/objecttree do not cause rerender)
+    debouncedPersistMarkdown(markdown);
+  };
+
+  const persistMarkdown = async (markdown: string) => {
     selectedFile?.updateFileContent(markdown);
+    await selectedFile?.saveFileContent();
+    setSelectedFile(selectedFile.getCopy()); //updating state to cause rerender (direct updates to objects/objecttree do not cause rerender)
+  };
+
+  const customUploadHandler = (files: FileWithProgress[]): DelayedImage[] => {
+    const delayedImages: DelayedImage[] = [];
+
+    files.forEach(({ file, progress }) => {
+      const delayedImage: DelayedImage = async () => {
+        // Your upload logic here
+        // You may use XMLHttpRequest, fetch, or any other method for file upload
+        const blob = new Blob([file], { type: file.type });
+        const blobUrl = URL.createObjectURL(blob);
+
+        const imageAttributes: ImageExtensionAttributes = {
+          src: blobUrl,
+          fileName: file.name, // You may adjust this based on your file naming requirements
+          alt: file.name, // You may adjust this based on your file naming requirements
+          title: file.name, // You may adjust this based on your file naming requirements
+        };
+
+        // Check if the parent directory handle exists
+        if (selectedFile.parent?.directoryHandle) {
+          const parentDirectoryHandle = selectedFile.parent.directoryHandle;
+
+          // Create a new file in the parent directory using the file name
+          try {
+            console.log(
+              "getting the writeable writing the blob to the file system"
+            );
+
+            const newFileHandle = await parentDirectoryHandle.getFileHandle(
+              file.name,
+              {
+                create: true,
+              }
+            );
+
+            // Write the blob data to the new file
+
+            console.log("writing the blob to the file system");
+            console.log(blob.size);
+            const writeAble = await newFileHandle.createWritable();
+            await writeAble.write(blob);
+            writeAble.close();
+
+            selectedFile.replacedImages[blobUrl] = "./" + file.name;
+          } catch (e) {
+            console.error(e);
+          }
+
+          // Return the image attributes
+          return imageAttributes;
+        } else {
+          // Handle the case where the parent directory handle doesn't exist
+          // You may want to throw an error or handle it differently based on your requirements
+          console.error("Parent directory handle not found.");
+          return null;
+        }
+
+        return imageAttributes;
+      };
+
+      delayedImages.push(delayedImage);
+    });
+
+    return delayedImages;
   };
 
   return (
-    <div className="ml-4 flex flex-col">
-      <div className="flex flex-row justify-end m-1">
-        <button
-          className={` bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300`}
-          onClick={() => {
-            selectedFile?.saveFileContent();
-          }}
-        >
-          Save
-        </button>
-      </div>
-      <div className="flex-1 overflow-y-scroll">
+    <div className="flex-1 flex flex-col ">
+      <div className="flex-1 overflow-hidden">
         <RemirrorMarkdownEditor
           key={selectedFile?.getFullPath()}
           initialContent={selectedFile?.fileContent}
           hooks={hooks}
           persistMarkdown={handleMarkdownChange}
+          customUploadHandler={customUploadHandler}
+          selectedFile={selectedFile}
+          setSelectedFile={setSelectedFile}
         ></RemirrorMarkdownEditor>
       </div>
     </div>

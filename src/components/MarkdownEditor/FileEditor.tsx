@@ -3,13 +3,36 @@ import { RemirrorComponent } from "./RemirrorComponent";
 
 export const FileEditor: React.FC = ({
   selectedFile,
+  setSelectedFile,
 }: {
   selectedFile: DirectoryNode | null;
+  setSelectedFile: (file: DirectoryNode) => void;
 }) => {
+  const handleOnChangeFileName = async (
+    e: React.FormEvent<HTMLInputElement>
+  ) => {
+    if (selectedFile) {
+      try {
+        await selectedFile.renameFile(e.currentTarget.value);
+        setSelectedFile(selectedFile.getCopy());
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
   return (
-    <div className="flex-1">
-      <TextField.Input size="3" placeholder="Search the docs…" />
-      <RemirrorComponent selectedFile={selectedFile} />
-    </div>
+    <>
+      <input
+        placeholder="Untitled"
+        value={selectedFile?.getName()}
+        onChange={handleOnChangeFileName}
+        className="text-5xl font-bold w-full bg-transparent focus:outline-none pb-4"
+      />
+      <RemirrorComponent
+        selectedFile={selectedFile}
+        setSelectedFile={setSelectedFile}
+      />
+    </>
   );
 };

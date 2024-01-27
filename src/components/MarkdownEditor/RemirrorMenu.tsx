@@ -15,7 +15,6 @@ export const Menu = ({
       onClick={() => {
         toggleBold();
         focus();
-        console.log(`Current Markdown: ${JSON.stringify(getMarkdown())}`);
         persistMarkdown(getMarkdown());
       }}
       style={{ fontWeight: active.bold() ? "bold" : undefined }}

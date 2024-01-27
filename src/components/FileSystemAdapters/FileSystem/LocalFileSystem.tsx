@@ -1,19 +1,27 @@
+// The main function of this file is to define the operations for the local file system as functions
+// and pass them down to the Folder component. The Folder component is then responsible for rendering
+// and calling them
+
 import { useState, useEffect } from "react";
-import DirectoryNode from "../../../models/DirectoryNode";
+import DirectoryNode, {
+  createDirectoryNode,
+} from "../../../models/DirectoryNode";
 import { set } from "remirror";
 import { Folder } from "./Folder";
 
 //sample react function
 export const LocalFileSystem = ({
+  selectedDirectory,
+  setSelectedDirectory,
   selectedFile,
   setSelectedFile,
 }: {
+  selectedDirectory: DirectoryNode | null;
+  setSelectedDirectory: (directory: DirectoryNode | null) => void;
   selectedFile: DirectoryNode | null;
-  setSelectedFile: (file: DirectoryNode | null) => void;
+  setSelectedFile: (file: DirectoryNode | undefined) => void;
+  selectedFileName: string | null;
 }) => {
-  const [selectedDirectory, setSelectedDirectory] =
-    useState<DirectoryNode | null>(null);
-
   useEffect(() => {
     const fetchEntries = async () => {
       if (selectedDirectory?.directoryHandle) {
@@ -46,70 +54,112 @@ export const LocalFileSystem = ({
     return rootDirectoryNode;
   };
 
-  const createDirectoryNode = async (
-    directoryHandle: FileSystemDirectoryHandle,
-    parent?: DirectoryNode
-  ): Promise<DirectoryNode> => {
-    const entries: DirectoryNode[] = [];
-
-    let directoryNode = new DirectoryNode(
-      directoryHandle.name,
-      false,
-      entries,
-      undefined,
-      directoryHandle,
-      parent
-    );
-
-    //@ts-ignore
-    for await (const entry of directoryHandle.values()) {
-      if (entry.kind === "directory") {
-        const subdirectoryHandle = entry as FileSystemDirectoryHandle;
-        const subdirectoryNode = await createDirectoryNode(
-          subdirectoryHandle,
-          directoryNode
-        );
-        entries.push(subdirectoryNode);
-      } else {
-        const fileHandle = entry as FileSystemFileHandle;
-        const fileNode = new DirectoryNode(
-          entry.name,
-          false,
-          [],
-          fileHandle,
-          undefined,
-          directoryNode
-        );
-        console.log(
-          "created file node, full path should be:",
-          fileNode.getFullPath()
-        );
-        entries.push(fileNode);
-      }
-    }
-
-    directoryNode.children = entries;
-
-    return directoryNode;
-  };
-
   const handleFileSelect = async (node: DirectoryNode) => {
-    await node.loadFileContent();
     setSelectedFile(node);
   };
 
+  const handleDeleteFile = async (node: DirectoryNode) => {
+    console.log("deleting file");
+    const parent = await node.delete();
+    setSelectedFile(getClosestParentsFirstFile(parent)); // TODO: set to root directory
+  };
+
+  const createFileHandlingDuplicates = async (parent: DirectoryNode) => {
+    console.log("creating file");
+    let counter = 0;
+    while (true && counter < 100) {
+      //limit to 100
+      try {
+        const node = await parent.createFile(
+          counter === 0 ? "Untitled.md" : `Untitled (${counter}).md`
+        );
+        setSelectedFile(node);
+        return;
+      } catch (error) {
+        counter++;
+      }
+    }
+
+    throw new Error("Could not create file");
+  };
+
+  const handleCreateFile = async (parent: DirectoryNode) => {
+    console.log("creating file");
+
+    try {
+      createFileHandlingDuplicates(parent);
+    } catch (error) {
+      console.error("Error creating file:", error);
+      alert(
+        "Error creating file, too many conflicts when trying to create the file."
+      );
+    }
+  };
+
+  const createFolderHandlingDuplicates = async (parent: DirectoryNode) => {
+    let counter = 0;
+    while (true && counter < 100) {
+      //limit to 100
+      try {
+        const node = await parent.createFolder(
+          counter === 0 ? "Untitled Folder" : `Untitled Folder (${counter})`
+        );
+        setSelectedFile(node);
+        return;
+      } catch (error) {
+        counter++;
+      }
+    }
+
+    throw new Error("Could not create folder");
+  };
+
+  const handleCreateFolder = async (parent: DirectoryNode) => {
+    try {
+      createFolderHandlingDuplicates(parent);
+    } catch (error) {
+      console.error("Error creating folder:", error);
+      alert(
+        "Error creating folder, too many conflicts when trying to create the folder."
+      );
+    }
+  };
+
+  const getClosestParentsFirstFile = (
+    node: DirectoryNode | undefined
+  ): DirectoryNode | undefined => {
+    if (!node) return node;
+    if (node.children.length > 0) {
+      for (const child of node.children) {
+        if (!child.isDirectory()) {
+          return child;
+        }
+      }
+    }
+
+    if (node.parent) {
+      return getClosestParentsFirstFile(node.parent);
+    } else {
+      return node;
+    }
+  };
+
   return (
-    <div className="min-w-16 bg-zinc-50">
+    <div className="min-w-16 bg-zinc-50 overflow-y-scroll">
       {selectedDirectory && (
         <div className="divide-y font-semibold text-base">
           <div className="text-sm p-2 text-slate-500">
-            {selectedDirectory.name}
+            {selectedDirectory.getName()}
           </div>
           <div className="font-normal p-1">
             <Folder
               node={selectedDirectory}
               depth={0}
               handleFileSelect={handleFileSelect}
+              currentlySelectedFile={selectedFile}
+              handleDeleteFile={handleDeleteFile}
+              handleCreateFile={handleCreateFile}
+              handleCreateFolder={handleCreateFolder}
             />
           </div>
         </div>
