@@ -143,7 +143,7 @@ export const LocalFileSystem = ({
   };
 
   return (
-    <div className="min-w-16 bg-zinc-50 overflow-y-scroll">
+    <div className="min-w-16 bg-zinc-50 overflow-y-scroll max-w-96">
       {selectedDirectory && (
         <div className="divide-y font-semibold text-base">
           <div className="text-sm p-2 text-slate-500">

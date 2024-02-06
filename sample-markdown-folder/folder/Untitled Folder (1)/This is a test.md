@@ -6,7 +6,7 @@ Interesting, it's not that bad
 
 **Ok pretty cool**
 
-*   Where are my
+*   Where **~are~** my
     
 
 1.  Where are my numbers

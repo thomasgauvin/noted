@@ -36,8 +36,8 @@
     
     *   better support conflict in names
         
-    *   support folder renames
-        
+        *   support folder renames
+            
 *   ✅ better handle folder open/tree structure after create file
     
 *   add refresh for files, either button or automatic
@@ -49,3 +49,26 @@
 *   ❌ styling for mobile
     
     *   local file system doesn't even work on mobile...
+        
+
+Feedback:
+
+P0
+
+*   The lines for indentation is a bit annoying (styling)
+    
+*   Weird behavior when not a new line, as seen below
+    
+*   \*\*Technical Product Skills Interview  
+    \*\*_Matt Alonso (Systems Engineer)_
+    
+*   Add a button to indicate this doesn't work on unsupported browsers
+    
+*   Doesn't work with images with parenthesis
+    
+*   The side bar is way too big
+    
+
+P1
+
+*   Add electron app for desktop, no notifications, and support for browsers that don't work

@@ -228,7 +228,7 @@ class DirectoryNode {
 
   replaceRelativeLinksWithBlobURLs = (markdownContent: string) => {
     console.log("called replace relative links");
-    const regex = /!\[(.*?)\]\((.*?)\s?("(.*?)")?\)/g;
+    const regex = /!\[(.*?)\]\(([^()]*\([^()]*\)[^()]*)\s*("(.*?)")?\)/g;
 
     const updatedMarkdownContent = markdownContent.replaceAll(
       regex,
@@ -260,10 +260,10 @@ class DirectoryNode {
     // Split the relative path into individual segments
     const pathSegments = relativePath.split("/");
 
-    // Start from the current node
+    // Start from the current node parent
     let currentNode: DirectoryNode | undefined = this.parent;
 
-    for (const segment of pathSegments) {
+    for (let segment of pathSegments) {
       // Handle parent directory indicator ".."
       if (segment === ".") {
         continue;
