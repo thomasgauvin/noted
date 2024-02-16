@@ -43,20 +43,20 @@ export function Folder({
           <div className="flex justify-between w-full items-center">
             <div className="pl-0.5 text-sm">{node.name}</div>
             <div className="flex">
-              <div className="flex items-center py-1 px-0.5 ml-0.5 hover:bg-zinc-300 rounded">
+              <div className="flex items-center py-1 px-0.5 ml-0.5 hover:bg-zinc-300 text-zinc-400 hover:text-zinc-600 rounded">
                 <FilePlus
                   size={15}
-                  className="cursor-pointer text-zinc-400 hover:text-zinc-700"
+                  className="cursor-pointer"
                   onClick={(e) => {
                     handleCreateFile(node);
                     e.stopPropagation();
                   }}
                 />
               </div>
-              <div className="flex items-center py-1 px-0.5 ml-0.5 hover:bg-zinc-300 rounded">
+              <div className="flex items-center py-1 px-0.5 ml-0.5 hover:bg-zinc-300 text-zinc-400 hover:text-zinc-600 rounded">
                 <FolderPlus
                   size={15}
-                  className="cursor-pointer text-zinc-400 hover:text-zinc-700"
+                  className="cursor-pointer  "
                   onClick={(e) => {
                     handleCreateFolder(node);
                     e.stopPropagation();

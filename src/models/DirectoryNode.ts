@@ -10,6 +10,7 @@ class DirectoryNode {
   parent?: DirectoryNode;
   blobUrl?: string;
   replacedImages: { [key: string]: string } = {};
+  frontmatter: string | null;
 
   constructor(
     name: string,
@@ -22,7 +23,8 @@ class DirectoryNode {
     unsavedChanges?: boolean,
     id?: string,
     blobUrl?: string,
-    replacedImages?: { [key: string]: string }
+    replacedImages?: { [key: string]: string },
+    frontmatter?: string | null
   ) {
     this.name = name;
     this.isExpanded = isExpanded;
@@ -35,6 +37,7 @@ class DirectoryNode {
     this.id = id || Math.random().toString(36).substr(2, 9);
     this.blobUrl = blobUrl;
     this.replacedImages = replacedImages || {};
+    this.frontmatter = frontmatter || null;
   }
 
   getId(): string {
@@ -66,6 +69,26 @@ class DirectoryNode {
     return this.name;
   }
 
+  extractFrontmatter(markdownContent: string) : {
+    markdownContent: string;
+    frontmatter: string | null;
+  } {
+    const frontmatterRegex = /^---\n([\s\S]+?)\n---\n/;
+    const match = markdownContent.match(frontmatterRegex);
+    if (match) {
+        return {
+          markdownContent: markdownContent.replace(match[0], ""),
+          frontmatter: match[1].trim()
+        };
+    } else {
+        return {
+          markdownContent,
+          frontmatter: null
+        };
+    }
+  }
+
+
   async loadFileContent(): Promise<string | null> {
     this.getFullPath();
 
@@ -78,7 +101,12 @@ class DirectoryNode {
           const updatedMarkdownContent =
             this.replaceRelativeLinksWithBlobURLs(content);
 
-          this.fileContent = updatedMarkdownContent;
+          const { markdownContent: markdownContentWithFrontmatterExtracted, frontmatter } = this.extractFrontmatter(updatedMarkdownContent);
+
+          // console.log(markdownContentWithFrontmatterExtracted, frontmatter);
+          
+          this.fileContent = markdownContentWithFrontmatterExtracted;
+          this.frontmatter = frontmatter;
           return updatedMarkdownContent;
         } catch (error) {
           console.error("Error reading file content:", error);
@@ -115,11 +143,13 @@ class DirectoryNode {
       const writable = await this.fileHandle.createWritable();
 
       //TODO: change this to use the updated markdown content
-      const fileContentReadyToSave = this.replaceBlobURLsWithRelativeLinks(
+      const fileContentWithReplacedImages = this.replaceBlobURLsWithRelativeLinks(
         this.fileContent
       );
 
-      await writable.write(fileContentReadyToSave || "");
+      const fileContentWithFrontmatter = this.frontmatter ? `---\n${this.frontmatter}\n---\n${fileContentWithReplacedImages}` : fileContentWithReplacedImages;
+
+      await writable.write(fileContentWithFrontmatter || "");
       await writable.close();
     }
 
@@ -198,7 +228,8 @@ class DirectoryNode {
       this.unsavedChanges,
       this.id,
       this.blobUrl,
-      this.replacedImages
+      this.replacedImages,
+      this.frontmatter
     );
   }
 
@@ -208,15 +239,21 @@ class DirectoryNode {
   }
 
   replaceBlobURLsWithRelativeLinks = (markdownContent: string) => {
-    const regex = /!\[(.*?)\]\((.*?)\s?("(.*?)")?\)/g;
+    const regex = /!\[([^\]]*)\]\((.*?)\s*("(?:.*[^"])")?\s*\)(\r)?\n/g; // only matches images on their one lines (follow by new line character)
 
     const updatedMarkdownContent = markdownContent.replaceAll(
       regex,
-      (match, altText, blobUrl) => {
+      (match, altText, blobUrl, imageTitle) => {
         // imagePath now contains the relative path to the image
         // Use this information to construct the blob URL or any other logic
         // Here, I'm assuming you have a map of relative paths to blob URLs in your DirectoryNode
         const relativeFilePath = this.replacedImages[blobUrl];
+
+        if(relativeFilePath) {
+          match = match.replace(blobUrl, relativeFilePath);
+        }
+
+        return match;
 
         // If a blob URL is found, use it; otherwise, keep the original relative link
         return relativeFilePath ? `![${altText}](${relativeFilePath})` : match;
@@ -228,12 +265,12 @@ class DirectoryNode {
 
   replaceRelativeLinksWithBlobURLs = (markdownContent: string) => {
     console.log("called replace relative links");
-    const regex = /!\[(.*?)\]\(([^()]*\([^()]*\)[^()]*)\s*("(.*?)")?\)/g;
+    const regex = /!\[([^\]]*)\]\((.*?)\s*("(?:.*[^"])")?\s*\)(\r)?\n/g; // only matches images on their one lines (follow by new line character)
 
     const updatedMarkdownContent = markdownContent.replaceAll(
       regex,
-      (match, altText, imagePath) => {
-        console.log("in replace relative links", match, altText, imagePath);
+      (match, altText, imagePath, imageTitle) => {
+        console.log("in replace relative links", match, altText, imagePath, imageTitle);
         // imagePath now contains the relative path to the image
         // Use this information to construct the blob URL or any other logic
         // Here, I'm assuming you have a map of relative paths to blob URLs in your DirectoryNode
@@ -241,9 +278,13 @@ class DirectoryNode {
 
         if (blobUrl) {
           this.replacedImages[blobUrl] = imagePath;
+          match = match.replace(imagePath, blobUrl);
         }
 
+
         console.log(blobUrl);
+
+        return match;
 
         // If a blob URL is found, use it; otherwise, keep the original relative link
         return blobUrl ? `![${altText}](${blobUrl})` : match;
@@ -468,8 +509,14 @@ const removeMdExtension = (fileName: string | undefined) => {
 export const createDirectoryNode = async (
   directoryHandle: FileSystemDirectoryHandle,
   parent?: DirectoryNode
-): Promise<DirectoryNode> => {
+): Promise<DirectoryNode | null> => {
   const entries: DirectoryNode[] = [];
+
+  if (
+    directoryHandle.name === "node_modules" ||
+    directoryHandle.name.startsWith(".")
+  )
+    return null;
 
   let directoryNode = new DirectoryNode(
     directoryHandle.name,
@@ -508,7 +555,9 @@ export const createDirectoryNode = async (
         subdirectoryHandle,
         directoryNode
       );
-      entries.push(subdirectoryNode);
+      if (subdirectoryNode) {
+        entries.push(subdirectoryNode);
+      }
     } else {
       const fileHandle = entry as FileSystemFileHandle;
 

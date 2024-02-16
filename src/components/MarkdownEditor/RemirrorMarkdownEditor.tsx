@@ -39,6 +39,7 @@ import type { RemirrorProps, UseThemeProps } from "@remirror/react";
 import { useExtensionEvent } from "@remirror/react";
 import { OnChangeMarkdown } from "./OnChangeMarkdown";
 import { DelayedImage, FileWithProgress } from "./RemirrorComponent";
+import { RemirrorCustomToolbar } from "./RemirrorCustomToolbar/RemirrorCustomToolbar";
 
 import "./index.css";
 import DirectoryNode from "../../models/DirectoryNode";
@@ -150,6 +151,7 @@ export const RemirrorMarkdownEditor: FC<
       classNames={["overflow-hidden", "outline-none", "prose", "prose-zinc"]}
     >
       <MarkdownToolbar />
+      <RemirrorCustomToolbar persistMarkdown={persistMarkdown} />
       <EditorComponent />
       <OnChangeMarkdown
         persistMarkdown={(markdown) => {

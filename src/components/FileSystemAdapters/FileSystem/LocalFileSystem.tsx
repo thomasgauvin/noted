@@ -14,11 +14,13 @@ export const LocalFileSystem = ({
   setSelectedDirectory,
   selectedFile,
   setSelectedFile,
+  hidden
 }: {
   selectedDirectory: DirectoryNode | null;
   setSelectedDirectory: (directory: DirectoryNode | null) => void;
-  selectedFile: DirectoryNode | undefined;
-  setSelectedFile: (node: DirectoryNode | undefined) => Promise<void>;
+  selectedFile: DirectoryNode | null;
+  setSelectedFile: (node: DirectoryNode | null) => Promise<void>;
+  hidden: boolean;
 }) => {
   useEffect(() => {
     const fetchEntries = async () => {
@@ -49,7 +51,11 @@ export const LocalFileSystem = ({
     directoryHandle: FileSystemDirectoryHandle
   ) => {
     const rootDirectoryNode = await createDirectoryNode(directoryHandle);
-    return rootDirectoryNode;
+    if (rootDirectoryNode) {
+      return rootDirectoryNode;
+    } else {
+      return null;
+    }
   };
 
   const handleFileSelect = async (node: DirectoryNode) => {
@@ -124,8 +130,8 @@ export const LocalFileSystem = ({
   };
 
   const getClosestParentsFirstFile = (
-    node: DirectoryNode | undefined
-  ): DirectoryNode | undefined => {
+    node: DirectoryNode | null
+  ): DirectoryNode | null => {
     if (!node) return node;
     if (node.children.length > 0) {
       for (const child of node.children) {
@@ -143,10 +149,12 @@ export const LocalFileSystem = ({
   };
 
   return (
-    <div className="min-w-16 bg-zinc-50 overflow-y-scroll max-w-96">
+    <div className={`min-w-16 bg-zinc-50 overflow-y-scroll max-w-80 ${hidden? 'hidden': ''}
+       scrollbar scrollbar-thumb-zinc-200 scrollbar-track-zinc-100 scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full 
+    `}>
       {selectedDirectory && (
         <div className="divide-y font-semibold text-base">
-          <div className="text-sm p-2 text-slate-500">
+          <div className="text-sm p-2 text-zinc-500">
             {selectedDirectory.getName()}
           </div>
           <div className="font-normal p-1">
@@ -161,9 +169,6 @@ export const LocalFileSystem = ({
             />
           </div>
         </div>
-      )}
-      {!selectedDirectory && (
-        <button onClick={handleDirectorySelect}>Select Directory</button>
       )}
     </div>
   );
