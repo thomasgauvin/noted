@@ -32,67 +32,60 @@ import {
   LucideHeading6,
 } from "lucide-react";
 
-export const RemirrorCustomToolbar = ({
-  persistMarkdown,
-}: {
-  persistMarkdown: (markdown: string) => void | undefined;
-}) => {
+export const RemirrorCustomToolbar = ({}: {}) => {
   return (
-    <div>
-      <Menubar.Root className="flex bg-white p-[3px] rounded-full shadow-lg">
-        <Menubar.Menu>
-          <Menubar.Trigger className="select-none">
+    <div className="fixed bottom-0 z-50 my-4 justify-center items-center w-[36rem] lg:w-[48rem]">
+      <div className="flex justify-center items-center ">
+        <Menubar.Root className="border overflow-hidden inline-flex flex-shrink-0 bg-white rounded-full shadow-lg">
+          <Menubar.Menu>
+            <Menubar.Trigger className="select-none">
               <RemirrorCustomToolbarHeadingButton />
-          </Menubar.Trigger>
-          <Menubar.Portal>
-            <Menubar.Content
-              className="min-w-[12rem] bg-white shadow-md rounded-lg p-1 "
-              align="start"
-              sideOffset={5}
-              alignOffset={-3}
-            >
-              <Menubar.Item className="">
-                <RemirrorCustomToolbarHeader1DropdownOption />
-              </Menubar.Item>
-              <Menubar.Item className="">
-                <RemirrorCustomToolbarHeader2DropdownOption />
-              </Menubar.Item>
-              <Menubar.Item className="">
-                <RemirrorCustomToolbarHeader3DropdownOption />
-              </Menubar.Item>
-              <Menubar.Item className="">
-                <RemirrorCustomToolbarHeader4DropdownOption />
-              </Menubar.Item>
-              <Menubar.Item className="">
-                <RemirrorCustomToolbarHeader5DropdownOption />
-              </Menubar.Item>
-              <Menubar.Item className="">
-                <RemirrorCustomToolbarHeader6DropdownOption />
-              </Menubar.Item>
-            </Menubar.Content>
-          </Menubar.Portal>
-          <RemirrorCustomToolbarBoldButton persistMarkdown={persistMarkdown} />
-          <RemirrorCustomToolbarItalicButton
-            persistMarkdown={persistMarkdown}
-          />
-          <RemirrorCustomToolbarStrikethroughButton
-            persistMarkdown={persistMarkdown}
-          />
-          <RemirrorCustomToolbarCodeButton persistMarkdown={persistMarkdown} />
-          <Menubar.Separator className="h-[1px] bg-violet6 m-[5px]" />
+            </Menubar.Trigger>
+            <Menubar.Portal>
+              <Menubar.Content
+                className="min-w-[12rem] bg-white shadow-md rounded-lg p-1 "
+                align="start"
+                sideOffset={5}
+                alignOffset={-3}
+              >
+                <Menubar.Item className="">
+                  <RemirrorCustomToolbarHeader1DropdownOption />
+                </Menubar.Item>
+                <Menubar.Item className="">
+                  <RemirrorCustomToolbarHeader2DropdownOption />
+                </Menubar.Item>
+                <Menubar.Item className="">
+                  <RemirrorCustomToolbarHeader3DropdownOption />
+                </Menubar.Item>
+                <Menubar.Item className="">
+                  <RemirrorCustomToolbarHeader4DropdownOption />
+                </Menubar.Item>
+                <Menubar.Item className="">
+                  <RemirrorCustomToolbarHeader5DropdownOption />
+                </Menubar.Item>
+                <Menubar.Item className="">
+                  <RemirrorCustomToolbarHeader6DropdownOption />
+                </Menubar.Item>
+              </Menubar.Content>
+            </Menubar.Portal>
+            <RemirrorCustomToolbarBoldButton />
+            <RemirrorCustomToolbarItalicButton />
+            <RemirrorCustomToolbarStrikethroughButton />
+            <RemirrorCustomToolbarCodeButton />
+            <div className="flex justify-center items-center">
+              <Menubar.Separator className="h-8 w-0.5 bg-zinc-100" />
+            </div>
 
-          <RemirrorCustomToolbarBlockquoteButton
-            persistMarkdown={persistMarkdown}
-          />
-          <RemirrorCustomToolbarCodeblockButton
-            persistMarkdown={persistMarkdown}
-          />
-          <Menubar.Separator className="h-[1px] bg-violet6 m-[5px]" />
-
-          <RemirrorCustomToolbarUndoButton persistMarkdown={persistMarkdown} />
-          <RemirrorCustomToolbarRedoButton persistMarkdown={persistMarkdown} />
-        </Menubar.Menu>
-      </Menubar.Root>
+            <RemirrorCustomToolbarBlockquoteButton />
+            <RemirrorCustomToolbarCodeblockButton />
+            <div className="flex justify-center items-center">
+              <Menubar.Separator className="h-8 w-0.5 bg-zinc-100" />
+            </div>
+            <RemirrorCustomToolbarUndoButton />
+            <RemirrorCustomToolbarRedoButton  />
+          </Menubar.Menu>
+        </Menubar.Root>
+      </div>
     </div>
   );
 };

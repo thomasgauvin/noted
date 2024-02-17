@@ -1,4 +1,4 @@
-*   ✅ add **support** for images
+*   ✅ add support for images
     
 *   ✅ added ability for images reading
     
@@ -8,9 +8,9 @@
     
 *   ✅ add support for new files/folders
     
-*   add menu bar 🚧
+*   ✅ add menu bar
     
-*   ✅show only png, webp, jpeg, jpg, svg, md files
+*   ✅ show only png, webp, jpeg, jpg, svg, md files
     
     *   prevent the upload of images that aren't in this list of file extensions ⏸️
         
@@ -28,11 +28,11 @@
         
     *   have a create modal with the create and open existing ⏸️
         
-*   Files & folder support 🚧
+*   Files & folder support ✅
     
-    *   better support conflict in names 🚧
+    *   better support conflict in names ✅
         
-        *   support folder renames 🚧
+        *   support folder renames ✅
             
 *   ✅ better handle folder open/tree structure after create file
     
@@ -43,44 +43,45 @@
 *   ✅ add scroll to filetree
     
 
-Feedback:
+## Feedback:
 
-P0
+### P0
 
-*   The lines for indentation is a bit annoying (styling) 🚧
+*   The lines for indentation is a bit annoying (styling) ✅ (removed spines)
     
-*   Weird behavior when not a new line, as seen below ⏸️
-    
-*   \*\*Technical Product Skills Interview  
-    \*\*_Matt Alonso (Systems Engineer)_
-    
-*   Add a button to indicate this doesn't work on unsupported browsers 🚧
-    
-*   Doesn't work with images with parenthesis 🚧
+*   Add a button to indicate this doesn't work on unsupported browsers ✅
     
 *   The side bar is way too big + add collapse ability ✅
     
-*   add lots of CSS transitions 🚧
+*   doesn't work with images at all? ✅
     
-*   hide folder create/delete until hover of item 🚧
+*   Doesn't work with images with parenthesis ✅
+    
+*   add support to create top level folder/file ✅
+    
+*   hide images from folder view ✅
     
 
-P1
+### P1
 
 *   Support ignoring frontmatter ✅
+    
+*   Add electron app for desktop, no notifications, and support for browsers that don't work
     
 *   Autocomplete with Bring your own OpenAI key (or Ollama integration) ⏸️
     
 *   add support to add links within the project ⏸️
     
-
-P2
-
-*   Add electron app for desktop, no notifications, and support for browsers that don't work
+*   hide folder create/delete until hover of item ⏸️
     
+*   add lots of CSS transitions ⏸️
+    
+
+### P2
+
 *   ❌ styling for mobile
     
     *   local file system doesn't even work on mobile...
         
 
-P3+
+### P3+

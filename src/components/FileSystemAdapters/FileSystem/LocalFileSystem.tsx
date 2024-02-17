@@ -7,6 +7,7 @@ import DirectoryNode, {
   createDirectoryNode,
 } from "../../../models/DirectoryNode";
 import { Folder } from "./Folder";
+import { FilePlus, FolderPlus } from "lucide-react";
 
 //sample react function
 export const LocalFileSystem = ({
@@ -129,6 +130,14 @@ export const LocalFileSystem = ({
     }
   };
 
+  const handleRenameFolder = async (node: DirectoryNode) => {
+    const newName = prompt("Enter new name for folder", node.name);
+    if (newName) {
+      await node.renameFolder(newName);
+      setSelectedFile(getClosestParentsFirstFile(node));
+    }
+  }
+
   const getClosestParentsFirstFile = (
     node: DirectoryNode | null
   ): DirectoryNode | null => {
@@ -149,13 +158,39 @@ export const LocalFileSystem = ({
   };
 
   return (
-    <div className={`min-w-16 bg-zinc-50 overflow-y-scroll max-w-80 ${hidden? 'hidden': ''}
+    <div
+      className={`min-w-16 bg-zinc-50 overflow-y-scroll max-w-80 ${
+        hidden ? "hidden" : ""
+      }
        scrollbar scrollbar-thumb-zinc-200 scrollbar-track-zinc-100 scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full 
-    `}>
+    `}
+    >
       {selectedDirectory && (
         <div className="divide-y font-semibold text-base">
-          <div className="text-sm p-2 text-zinc-500">
-            {selectedDirectory.getName()}
+          <div className="text-sm p-2 text-zinc-500 flex flex-row justify-between">
+            <div>{selectedDirectory.getName()}</div>
+            <div className="flex flex-row">
+              <div className="flex items-center py-1 px-0.5 ml-0.5 hover:bg-zinc-300 text-zinc-400 hover:text-zinc-600 rounded">
+                <FilePlus
+                  size={15}
+                  className="cursor-pointer"
+                  onClick={(e) => {
+                    handleCreateFile(selectedDirectory);
+                    e.stopPropagation();
+                  }}
+                />
+              </div>
+              <div className="flex items-center py-1 px-0.5 ml-0.5 hover:bg-zinc-300 text-zinc-400 hover:text-zinc-600 rounded">
+                <FolderPlus
+                  size={15}
+                  className="cursor-pointer  "
+                  onClick={(e) => {
+                    handleCreateFolder(selectedDirectory);
+                    e.stopPropagation();
+                  }}
+                />
+              </div>
+            </div>
           </div>
           <div className="font-normal p-1">
             <Folder
@@ -166,6 +201,7 @@ export const LocalFileSystem = ({
               handleDeleteFile={handleDeleteFile}
               handleCreateFile={handleCreateFile}
               handleCreateFolder={handleCreateFolder}
+              handleRenameFolder={handleRenameFolder}
             />
           </div>
         </div>

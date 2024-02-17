@@ -69,25 +69,24 @@ class DirectoryNode {
     return this.name;
   }
 
-  extractFrontmatter(markdownContent: string) : {
+  extractFrontmatter(markdownContent: string): {
     markdownContent: string;
     frontmatter: string | null;
   } {
     const frontmatterRegex = /^---\n([\s\S]+?)\n---\n/;
     const match = markdownContent.match(frontmatterRegex);
     if (match) {
-        return {
-          markdownContent: markdownContent.replace(match[0], ""),
-          frontmatter: match[1].trim()
-        };
+      return {
+        markdownContent: markdownContent.replace(match[0], ""),
+        frontmatter: match[1].trim(),
+      };
     } else {
-        return {
-          markdownContent,
-          frontmatter: null
-        };
+      return {
+        markdownContent,
+        frontmatter: null,
+      };
     }
   }
-
 
   async loadFileContent(): Promise<string | null> {
     this.getFullPath();
@@ -101,10 +100,13 @@ class DirectoryNode {
           const updatedMarkdownContent =
             this.replaceRelativeLinksWithBlobURLs(content);
 
-          const { markdownContent: markdownContentWithFrontmatterExtracted, frontmatter } = this.extractFrontmatter(updatedMarkdownContent);
+          const {
+            markdownContent: markdownContentWithFrontmatterExtracted,
+            frontmatter,
+          } = this.extractFrontmatter(updatedMarkdownContent);
 
           // console.log(markdownContentWithFrontmatterExtracted, frontmatter);
-          
+
           this.fileContent = markdownContentWithFrontmatterExtracted;
           this.frontmatter = frontmatter;
           return updatedMarkdownContent;
@@ -143,11 +145,12 @@ class DirectoryNode {
       const writable = await this.fileHandle.createWritable();
 
       //TODO: change this to use the updated markdown content
-      const fileContentWithReplacedImages = this.replaceBlobURLsWithRelativeLinks(
-        this.fileContent
-      );
+      const fileContentWithReplacedImages =
+        this.replaceBlobURLsWithRelativeLinks(this.fileContent);
 
-      const fileContentWithFrontmatter = this.frontmatter ? `---\n${this.frontmatter}\n---\n${fileContentWithReplacedImages}` : fileContentWithReplacedImages;
+      const fileContentWithFrontmatter = this.frontmatter
+        ? `---\n${this.frontmatter}\n---\n${fileContentWithReplacedImages}`
+        : fileContentWithReplacedImages;
 
       await writable.write(fileContentWithFrontmatter || "");
       await writable.close();
@@ -160,6 +163,65 @@ class DirectoryNode {
       this.parent.children = this.parent.children.map((child) => {
         if (child.getId() === this.getId()) {
           return this;
+        } else {
+          return child;
+        }
+      });
+    }
+  }
+
+  //create a rename function for folder
+  async renameFolder(newName: string): Promise<void | Error> {
+    const newFolderName = newName;
+
+    if(this.directoryHandle && this.parent && this.parent.directoryHandle){
+      //search the parent to see if the file with the new name already exists
+      let existingFolderHandle;
+      try {
+        existingFolderHandle =
+          await this.parent.directoryHandle?.getDirectoryHandle(newFolderName, {
+            create: false,
+          });
+      } catch (error) {
+        if (existingFolderHandle) {
+          return new Error("Folder already exists"); //not expected to happen since it doesn't fail when it finds the file
+        }
+      }
+
+      if (existingFolderHandle) {
+        return new Error("Folder already exists"); //not expected to happen since it doesn't fail when it finds the file
+      }
+
+      //create new directory for new name
+      const newFolderHandle =
+        await this.parent.directoryHandle.getDirectoryHandle(newFolderName, {
+          create: true,
+        });
+
+      await copyDirectory(this.directoryHandle, newFolderHandle);
+
+      //update the new folder node with the new name
+      const newFolderNode = await createDirectoryNode(
+        newFolderHandle,
+        this.parent
+      );
+
+      const name = this.name;
+      const parent = this.parent;
+
+      //delete the folder
+      await this.parent?.directoryHandle?.removeEntry(
+        this.directoryHandle.name,
+        {
+          recursive: true,
+        }
+      );
+
+      //update the children of the parent
+      //@ts-expect-error
+      parent.children = parent.children.map((child) => {
+        if (child.name === this.name) {
+          return newFolderNode;
         } else {
           return child;
         }
@@ -238,8 +300,14 @@ class DirectoryNode {
     return !!this.directoryHandle;
   }
 
+  //function is markdown
+  isMarkdown(): boolean {
+    return this.name.endsWith(".md");
+  }
+
   replaceBlobURLsWithRelativeLinks = (markdownContent: string) => {
-    const regex = /!\[([^\]]*)\]\((.*?)\s*("(?:.*[^"])")?\s*\)(\r)?\n/g; // only matches images on their one lines (follow by new line character)
+    const regex =
+      /!\[([^\]]*)\]\((.*(\(([^()]*|\(([^()]*|\([^()]*\))*\))*\))*)\s("(?:.*[^"])")?\s*\)/g; // only matches images on their one lines (follow by new line character)
 
     const updatedMarkdownContent = markdownContent.replaceAll(
       regex,
@@ -249,7 +317,7 @@ class DirectoryNode {
         // Here, I'm assuming you have a map of relative paths to blob URLs in your DirectoryNode
         const relativeFilePath = this.replacedImages[blobUrl];
 
-        if(relativeFilePath) {
+        if (relativeFilePath) {
           match = match.replace(blobUrl, relativeFilePath);
         }
 
@@ -265,12 +333,19 @@ class DirectoryNode {
 
   replaceRelativeLinksWithBlobURLs = (markdownContent: string) => {
     console.log("called replace relative links");
-    const regex = /!\[([^\]]*)\]\((.*?)\s*("(?:.*[^"])")?\s*\)(\r)?\n/g; // only matches images on their one lines (follow by new line character)
+    const regex =
+      /!\[([^\]]*)\]\((.*(\(([^()]*|\(([^()]*|\([^()]*\))*\))*\))*)\s("(?:.*[^"])")?\s*\)/g; // only matches images on their one lines (follow by new line character)
 
     const updatedMarkdownContent = markdownContent.replaceAll(
       regex,
       (match, altText, imagePath, imageTitle) => {
-        console.log("in replace relative links", match, altText, imagePath, imageTitle);
+        console.log(
+          "in replace relative links",
+          match,
+          altText,
+          imagePath,
+          imageTitle
+        );
         // imagePath now contains the relative path to the image
         // Use this information to construct the blob URL or any other logic
         // Here, I'm assuming you have a map of relative paths to blob URLs in your DirectoryNode
@@ -280,7 +355,6 @@ class DirectoryNode {
           this.replacedImages[blobUrl] = imagePath;
           match = match.replace(imagePath, blobUrl);
         }
-
 
         console.log(blobUrl);
 
@@ -359,8 +433,13 @@ class DirectoryNode {
     //if this is a folder, ask the
     if (this.directoryHandle) {
       //delete all the files in the folder
-      for (const child of this.children) {
-        await child.delete(true);
+      try{
+        for (const child of this.children) {
+          await child.delete(true);
+        }
+      }
+      catch(error){
+        console.log("error deleting child", error); //possible that the file has been moved and can't be deleted
       }
 
       //delete the folder
@@ -543,7 +622,7 @@ export const createDirectoryNode = async (
     if (
       entry.kind === "file" &&
       !acceptedFileExtensions.some((extension) =>
-        entry.name.endsWith(extension)
+        entry.name.toLowerCase().endsWith(extension)
       )
     ) {
       continue;
@@ -592,3 +671,19 @@ export const createDirectoryNode = async (
 
   return directoryNode;
 };
+
+async function copyDirectory(sourceDirectoryHandle: FileSystemDirectoryHandle, targetDirectoryHandle: FileSystemDirectoryHandle) {
+  //@ts-expect-error
+  for await (const [name, entry] of sourceDirectoryHandle.entries()) {
+    if (entry.kind === "directory") {
+      const newDirectoryHandle = await targetDirectoryHandle.getDirectoryHandle(name, {
+        create: true,
+      });
+      await copyDirectory(entry, newDirectoryHandle);
+    } else {
+      const subdirectoryHandle = entry as FileSystemDirectoryHandle;
+      //@ts-expect-error
+      await subdirectoryHandle.move(targetDirectoryHandle, name);
+    }
+  }
+}

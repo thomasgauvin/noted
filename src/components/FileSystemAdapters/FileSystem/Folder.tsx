@@ -12,6 +12,7 @@ export function Folder({
   handleDeleteFile,
   handleCreateFile,
   handleCreateFolder,
+  handleRenameFolder
 }: {
   node: DirectoryNode;
   depth: number;
@@ -20,6 +21,7 @@ export function Folder({
   handleDeleteFile: (node: DirectoryNode) => void;
   handleCreateFile: (node: DirectoryNode) => void;
   handleCreateFolder: (node: DirectoryNode) => void;
+  handleRenameFolder: (node: DirectoryNode) => void;
 }) {
   const [expanded, setExpanded] = useState(depth === 0);
 
@@ -77,26 +79,32 @@ export function Folder({
             <ContextMenu.Root>
               <ContextMenu.Trigger className="ContextMenuTrigger">
                 {!child.isDirectory() ? ( // Render file or folder depending on amount of children
-                  <div //background color changes when file is hovered over
-                    className={`ml-${(depth + 1) * 20} cursor-pointer
-                                text-sm
-                                  p-1 hover:bg-zinc-200/70 rounded ${
-                                    child.unsavedChanges ? "italic" : ""
-                                  }
-                                  ${
-                                    currentlySelectedFile?.getFullPath() ===
-                                    child.getFullPath()
-                                      ? "bg-zinc-200/50"
-                                      : ""
-                                  }
-                                  `}
-                    onClick={() => handleFileSelect(child)}
-                  >
-                    <div className="pl-1">
-                      {child.getName()}
-                      {child.unsavedChanges ? "*" : ""}
-                    </div>
-                  </div>
+                  <>
+                    {child.isMarkdown && child.isMarkdown() ? ( //hide the images
+                      <div //background color changes when file is hovered over
+                        className={`ml-${(depth + 1) * 20} cursor-pointer
+                                    text-sm
+                                      p-1 hover:bg-zinc-200/70 rounded ${
+                                        child.unsavedChanges ? "italic" : ""
+                                      }
+                                      ${
+                                        currentlySelectedFile?.getFullPath() ===
+                                        child.getFullPath()
+                                          ? "bg-zinc-200/50"
+                                          : ""
+                                      }
+                                      `}
+                        onClick={() => handleFileSelect(child)}
+                      >
+                        <div className="pl-1">
+                          {child.getName()}
+                          {child.unsavedChanges ? "*" : ""}
+                        </div>
+                      </div>
+                    ) : (
+                      <></>
+                    )}
+                  </>
                 ) : (
                   <Folder
                     node={child}
@@ -106,10 +114,14 @@ export function Folder({
                     handleDeleteFile={handleDeleteFile}
                     handleCreateFile={handleCreateFile}
                     handleCreateFolder={handleCreateFolder}
+                    handleRenameFolder={handleRenameFolder}
                   /> // Recursively render directory
                 )}
               </ContextMenu.Trigger>
-              <RightClickMenu onDelete={() => handleDeleteFile(child)} />
+              <RightClickMenu
+                onDelete={() => handleDeleteFile(child)}
+                onRename={() => handleRenameFolder(child)}
+              />
             </ContextMenu.Root>
           </div>
         ))}

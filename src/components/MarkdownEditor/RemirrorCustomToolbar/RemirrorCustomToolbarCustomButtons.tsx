@@ -1,29 +1,59 @@
 import { useCommands, useActive, useHelpers } from "@remirror/react";
 import { LucideBold, LucideBraces, LucideCode, LucideItalic, LucideQuote, LucideRedo2, LucideStrikethrough, LucideUndo2 } from "lucide-react";
+import { TooltipContent, TooltipTrigger, Tooltip, TooltipProvider} from "@radix-ui/react-tooltip";
 
 const RemirrorCustomToolbarCustomButton = ({
-  persistMarkdown,
   onClick,
   active,
   disabled,
   children,
+  description,
+  shortcut
 }: {
-  persistMarkdown: (markdown: string) => void | undefined;
   onClick: () => void;
   active: boolean;
   disabled?: boolean;
   children: React.ReactNode;
+  description: string;
+  shortcut: string | undefined;
 }) => {
   const { focus } = useCommands();
 
   return (
-    <button
-      onClick={onClick}
-      style={{ fontWeight: active ? "bold" : undefined }}
-      disabled={disabled}
-    >
-      {children}
-    </button>
+    <TooltipProvider delayDuration={500}>
+      <Tooltip>
+        <TooltipTrigger>
+          <button
+            onClick={onClick}
+            style={{ fontWeight: active ? "bold" : undefined }}
+            disabled={disabled}
+            className={`bg-white hover:bg-zinc-200 px-3 py-2 cursor-pointer
+              ${active ? "bg-zinc-100" : ""}
+              ${disabled ? "cursor-not-allowed hover:bg-white opacity-20" : ""}
+            `}
+          >
+            {children}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent
+          side="bottom"
+          className="mb-1 bg-zinc-800 text-white opacity-80 z-50 overflow-hidden rounded-md px-3 py-1.5 text-xs text-primary-foreground"
+        >
+          <p>{description} 
+            {
+              shortcut &&
+              <>{
+                  navigator.userAgent.includes('Macintosh') ? " (Cmd + " : " Ctrl + "
+                }
+                {
+                  shortcut 
+                }
+              </>  
+          }  
+          </p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 
@@ -39,13 +69,14 @@ export const RemirrorCustomToolbarBoldButton = ({
   return (
     <>
       <RemirrorCustomToolbarCustomButton
-        persistMarkdown={persistMarkdown}
         onClick={() => {
           toggleBold();
           focus();
         }}
         active={active.bold()}
         disabled={!toggleBold.enabled()}
+        description="Bold"
+        shortcut="b"
         >
           <LucideBold />
         </RemirrorCustomToolbarCustomButton>
@@ -65,13 +96,14 @@ export const RemirrorCustomToolbarItalicButton = ({
   return (
     <>
       <RemirrorCustomToolbarCustomButton
-        persistMarkdown={persistMarkdown}
         onClick={() => {
           toggleItalic();
           focus();
         }}
         active={active.italic()}
         disabled={!toggleItalic.enabled()}
+        description="Italic"
+        shortcut="i"
         >
           <LucideItalic />
         </RemirrorCustomToolbarCustomButton>
@@ -91,12 +123,14 @@ export const RemirrorCustomToolbarRedoButton = ({
   return (
     <>
       <RemirrorCustomToolbarCustomButton
-        persistMarkdown={persistMarkdown}
         onClick={() => {
           redo();
           focus();
         }}
+        active={false}
         disabled={!redo.enabled()}
+        description="Redo"
+        shortcut="Shift + z"
         >
           <LucideRedo2 />
         </RemirrorCustomToolbarCustomButton>
@@ -116,13 +150,14 @@ export const RemirrorCustomToolbarStrikethroughButton = ({
   return (
     <>
       <RemirrorCustomToolbarCustomButton
-        persistMarkdown={persistMarkdown}
         onClick={() => {
           toggleStrike();
           focus();
         }}
         active={active.strike()}
         disabled={!toggleStrike.enabled()}
+        description="Strikethrough "
+        shortcut={undefined}
         >
           <LucideStrikethrough />
         </RemirrorCustomToolbarCustomButton>
@@ -131,9 +166,7 @@ export const RemirrorCustomToolbarStrikethroughButton = ({
 };
 
 export const RemirrorCustomToolbarUndoButton = ({
-  persistMarkdown,
 }: {
-  persistMarkdown: (markdown: string) => void | undefined;
 }) => {
   const { undo, focus } = useCommands();
   const active = useActive();
@@ -142,12 +175,14 @@ export const RemirrorCustomToolbarUndoButton = ({
   return (
     <>
       <RemirrorCustomToolbarCustomButton
-        persistMarkdown={persistMarkdown}
         onClick={() => {
           undo();
           focus();
         }}
+        active={false}
         disabled={!undo.enabled()}
+        description="Undo"
+        shortcut="z"
         >
           <LucideUndo2 />
         </RemirrorCustomToolbarCustomButton>
@@ -156,9 +191,7 @@ export const RemirrorCustomToolbarUndoButton = ({
 };
 
 export const RemirrorCustomToolbarCodeblockButton = ({
-  persistMarkdown,
 }: {
-  persistMarkdown: (markdown: string) => void | undefined;
 }) => {
   const { toggleCodeBlock, focus } = useCommands();
   const active = useActive();
@@ -167,13 +200,14 @@ export const RemirrorCustomToolbarCodeblockButton = ({
   return (
     <>
       <RemirrorCustomToolbarCustomButton
-        persistMarkdown={persistMarkdown}
         onClick={() => {
           toggleCodeBlock();
           focus();
         }}
         active={active.codeBlock()}
         disabled={!toggleCodeBlock.enabled()}
+        description="Code block"
+        shortcut={undefined}
         >
           <LucideBraces />
         </RemirrorCustomToolbarCustomButton>
@@ -183,9 +217,7 @@ export const RemirrorCustomToolbarCodeblockButton = ({
 };
 
 export const RemirrorCustomToolbarCodeButton = ({
-  persistMarkdown,
 }: {
-  persistMarkdown: (markdown: string) => void | undefined;
 }) => {
   const { toggleCode, focus } = useCommands();
   const active = useActive();
@@ -194,13 +226,14 @@ export const RemirrorCustomToolbarCodeButton = ({
   return (
     <>
       <RemirrorCustomToolbarCustomButton
-        persistMarkdown={persistMarkdown}
         onClick={() => {
           toggleCode();
           focus();
         }}
         active={active.code()}
         disabled={!toggleCode.enabled()}
+        description="Code"
+        shortcut={undefined}
         >
           <LucideCode />
         </RemirrorCustomToolbarCustomButton>
@@ -209,9 +242,7 @@ export const RemirrorCustomToolbarCodeButton = ({
 };
 
 export const RemirrorCustomToolbarBlockquoteButton = ({
-  persistMarkdown,
 }: {
-  persistMarkdown: (markdown: string) => void | undefined;
 }) => {
   const { toggleBlockquote, focus } = useCommands();
   const active = useActive();
@@ -220,13 +251,14 @@ export const RemirrorCustomToolbarBlockquoteButton = ({
   return (
     <>
       <RemirrorCustomToolbarCustomButton
-        persistMarkdown={persistMarkdown}
         onClick={() => {
           toggleBlockquote();
           focus();
         }}
         active={active.blockquote()}
         disabled={!toggleBlockquote.enabled()}
+        description="Blockquote"
+        shortcut={undefined}
         >
           <LucideQuote />
         </RemirrorCustomToolbarCustomButton>

@@ -9,15 +9,48 @@ import {
   LucideHeading6,
   LucideQuote,
 } from "lucide-react";
+import {
+  TooltipContent,
+  TooltipTrigger,
+  Tooltip,
+  TooltipProvider,
+} from "@radix-ui/react-tooltip";
+
 
 export const RemirrorCustomToolbarHeadingButton = () => {
   const active = useActive();
+  const { toggleHeading } = useCommands();
   const { getMarkdown } = useHelpers();
 
+  const isHeadingActive = active.heading({level: 1}) || active.heading({level: 2}) || active.heading({level: 3}) || active.heading({level: 4}) || active.heading({level: 5}) || active.heading({level: 6});
+  const isEnabled = toggleHeading.enabled({level: 1}) || toggleHeading.enabled({level: 2}) || toggleHeading.enabled({level: 3}) || toggleHeading.enabled({level: 4}) || toggleHeading.enabled({level: 5}) || toggleHeading.enabled({ level: 6 });
+
   return (
-    <button className="">
-      <LucideHeading />
-    </button>
+    <TooltipProvider delayDuration={500}>
+      <Tooltip>
+        <TooltipTrigger>
+          <button
+            className={`bg-white hover:bg-zinc-100 px-3 py-2
+          
+          
+            ${isHeadingActive ? "bg-zinc-100 " : ""}  
+            ${isEnabled ? "" : "cursor-not-allowed hover:bg-white opacity-20"}
+            `}
+          >
+            <LucideHeading />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent
+          side="bottom"
+          className={`mb-1 bg-zinc-800 text-white 
+            opacity-80 z-50 overflow-hidden rounded-md px-3 py-1.5 
+            text-xs text-primary-foreground
+          `}
+        >
+          <p>Headings</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 
@@ -37,7 +70,12 @@ const RemirrorCustomToolbarHeadingDropdownOption = ({
       onClick={onClick}
       style={{ fontWeight: active ? "bold" : undefined }}
       disabled={disabled}
-      className="flex items-center p-2 space-x-2 justify-between w-full bg-white outline-none hover:bg-gray-100 hover:border-none rounded-md"
+      className={`flex items-center p-2 space-x-2 
+      justify-between w-full bg-white outline-none hover:bg-gray-100 
+      hover:border-none rounded-md
+      ${active ? "bg-zinc-100" : ""}
+      ${disabled ? "cursor-not-allowed hover:bg-white opacity-20" : ""}
+      `}
     >
       {children}
     </button>

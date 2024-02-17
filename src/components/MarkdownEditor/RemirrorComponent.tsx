@@ -130,8 +130,8 @@ export const RemirrorComponent = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col ">
-      <div className="flex-1 overflow-hidden">
+    <div className="flex flex-col ">
+      <div className=" overflow-hidden relative mb-10">
         <RemirrorMarkdownEditor
           key={selectedFile?.getFullPath()}
           initialContent={selectedFile?.fileContent}

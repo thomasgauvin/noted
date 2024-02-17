@@ -110,13 +110,13 @@ export const RemirrorMarkdownEditor: FC<
       new LinkExtension({
         defaultProtocol: "https://",
       }),
-      new PlaceholderExtension({ placeholder }),
+      new PlaceholderExtension({ placeholder: "Start typing here..." }),
       new BoldExtension(),
       new StrikeExtension(),
       new ItalicExtension(),
       new HeadingExtension(),
       new BlockquoteExtension(),
-      new BulletListExtension({ enableSpine: true }),
+      new BulletListExtension({ enableSpine: false }),
       new OrderedListExtension(),
       new ListItemExtension({
         priority: ExtensionPriority.High,
@@ -150,8 +150,8 @@ export const RemirrorMarkdownEditor: FC<
       {...rest}
       classNames={["overflow-hidden", "outline-none", "prose", "prose-zinc"]}
     >
-      <MarkdownToolbar />
-      <RemirrorCustomToolbar persistMarkdown={persistMarkdown} />
+      {/* <MarkdownToolbar /> */}
+      <RemirrorCustomToolbar/>
       <EditorComponent />
       <OnChangeMarkdown
         persistMarkdown={(markdown) => {

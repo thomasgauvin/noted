@@ -29,46 +29,47 @@ export const EditorPage: React.FC = () => {
         setSelectedFile={handleSetSelectedFile}
         hidden={!panelIsOpen || !selectedDirectory}
       />
-      <div
-        className={`flex-1 flex flex-col overflow-y-scroll
+      <div className="flex flex-1">
+        <div
+          className={`flex-1 flex flex-col overflow-y-scroll
                scrollbar scrollbar-thumb-zinc-200 scrollbar-track-zinc-100 scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full 
-      `}
-      >
-        <div className="p-1 sticky top-0 cursor-pointer">
-          <div className="w-fit p-1 hover:bg-zinc-200 rounded  text-zinc-400 hover:text-zinc-500 ">
-            {panelIsOpen ? (
-              <PanelLeftClose
-                onClick={() => setPanelIsOpen(false)}
-                size={20}
-              />
-            ) : (
-              <PanelLeftOpen
-                onClick={() => setPanelIsOpen(true)}
-                size={20}
-              />
-            )}
+
+               `}
+        >
+          <div className="p-1 sticky top-0 cursor-pointer">
+            <div className="w-fit p-1 hover:bg-zinc-200 rounded  text-zinc-400 hover:text-zinc-500 ">
+              {panelIsOpen ? (
+                <PanelLeftClose
+                  onClick={() => setPanelIsOpen(false)}
+                  size={20}
+                />
+              ) : (
+                <PanelLeftOpen onClick={() => setPanelIsOpen(true)} size={20} />
+              )}
+            </div>
+          </div>
+          <div className="w-full max-w-3xl mx-auto pt-16 flex flex-1 flex-col">
+            <div className="m-6">
+              {selectedFile?.blobUrl ? (
+                <div>
+                  <img src={selectedFile.blobUrl} />
+                </div>
+              ) : (
+                <FileEditor
+                  selectedFile={selectedFile}
+                  setSelectedFile={handleSetSelectedFile}
+                />
+              )}
+            </div>
           </div>
         </div>
-        <div className="w-full max-w-3xl mx-auto pt-16 flex flex-1 flex-col">
-          <div className="m-6">
-            {selectedFile?.blobUrl ? (
-              <div>
-                <img src={selectedFile.blobUrl} />
-              </div>
-            ) : (
-              <FileEditor
-                selectedFile={selectedFile}
-                setSelectedFile={handleSetSelectedFile}
-              />
-            )}
-          </div>
-        </div>
+        {!selectedDirectory && (
+          <WorkspaceSelector
+            setSelectedDirectory={setSelectedDirectory}
+            className="flex flex-1"
+          />
+        )}
       </div>
-      {
-        !selectedDirectory && (
-          <WorkspaceSelector setSelectedDirectory={setSelectedDirectory} />
-        )
-      }
     </div>
   );
 };
