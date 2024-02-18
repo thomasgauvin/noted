@@ -62,6 +62,17 @@
 *   hide images from folder view ✅
     
 
+### Bugs:
+
+*   Rename files issue causing duplicate selected files ✅
+    
+*   Renaming a folder does not update the folder directory
+    
+*   Folder view should not have a Editor view, or the Editor view should be functional to rename a folder
+    
+*   Easier way to go from title to text. Maybe enter should go to text, or tab.
+    
+
 ### P1
 
 *   Support ignoring frontmatter ✅

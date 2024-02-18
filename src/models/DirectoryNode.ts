@@ -264,11 +264,15 @@ class DirectoryNode {
       //@ts-ignore
       await this.fileHandle.move(newFileName);
 
+      //update the current node with the new file name
+      const oldName = this.name;
+      this.name = newFileName;
+
       console.log("renamed file, updating name", this.fileHandle.name);
 
       //update the children of the parent
       this.parent.children = this.parent.children.map((child) => {
-        if (child.name === this.name) {
+        if (child.name === oldName) {
           return this;
         } else {
           return child;
