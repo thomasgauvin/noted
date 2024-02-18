@@ -1,4 +1,4 @@
-import { useCommands, useActive, useHelpers } from "@remirror/react";
+import { useCommands, useActive } from "@remirror/react";
 import { LucideBold, LucideBraces, LucideCode, LucideItalic, LucideQuote, LucideRedo2, LucideStrikethrough, LucideUndo2 } from "lucide-react";
 import { TooltipContent, TooltipTrigger, Tooltip, TooltipProvider} from "@radix-ui/react-tooltip";
 
@@ -17,7 +17,6 @@ const RemirrorCustomToolbarCustomButton = ({
   description: string;
   shortcut: string | undefined;
 }) => {
-  const { focus } = useCommands();
 
   return (
     <TooltipProvider delayDuration={500}>
@@ -58,13 +57,10 @@ const RemirrorCustomToolbarCustomButton = ({
 }
 
 export const RemirrorCustomToolbarBoldButton = ({
-  persistMarkdown,
 }: {
-  persistMarkdown: (markdown: string) => void | undefined;
 }) => {
   const { toggleBold, focus } = useCommands();
   const active = useActive();
-  const { getMarkdown } = useHelpers();
 
   return (
     <>
@@ -85,13 +81,10 @@ export const RemirrorCustomToolbarBoldButton = ({
 };
 
 export const RemirrorCustomToolbarItalicButton = ({
-  persistMarkdown,
 }: {
-  persistMarkdown: (markdown: string) => void | undefined;
 }) => {
   const { toggleItalic, focus } = useCommands();
   const active = useActive();
-  const { getMarkdown } = useHelpers();
 
   return (
     <>
@@ -112,13 +105,9 @@ export const RemirrorCustomToolbarItalicButton = ({
 };
 
 export const RemirrorCustomToolbarRedoButton = ({
-  persistMarkdown,
 }: {
-  persistMarkdown: (markdown: string) => void | undefined;
 }) => {
   const { redo, focus } = useCommands();
-  const active = useActive();
-  const { getMarkdown } = useHelpers();
 
   return (
     <>
@@ -139,13 +128,9 @@ export const RemirrorCustomToolbarRedoButton = ({
 };
 
 export const RemirrorCustomToolbarStrikethroughButton = ({
-  persistMarkdown,
-}: {
-  persistMarkdown: (markdown: string) => void | undefined;
-}) => {
+}: {}) => {
   const { toggleStrike, focus } = useCommands();
   const active = useActive();
-  const { getMarkdown } = useHelpers();
 
   return (
     <>
@@ -169,8 +154,6 @@ export const RemirrorCustomToolbarUndoButton = ({
 }: {
 }) => {
   const { undo, focus } = useCommands();
-  const active = useActive();
-  const { getMarkdown } = useHelpers();
 
   return (
     <>
@@ -195,7 +178,6 @@ export const RemirrorCustomToolbarCodeblockButton = ({
 }) => {
   const { toggleCodeBlock, focus } = useCommands();
   const active = useActive();
-  const { getMarkdown } = useHelpers();
 
   return (
     <>
@@ -221,7 +203,6 @@ export const RemirrorCustomToolbarCodeButton = ({
 }) => {
   const { toggleCode, focus } = useCommands();
   const active = useActive();
-  const { getMarkdown } = useHelpers();
 
   return (
     <>
@@ -246,7 +227,6 @@ export const RemirrorCustomToolbarBlockquoteButton = ({
 }) => {
   const { toggleBlockquote, focus } = useCommands();
   const active = useActive();
-  const { getMarkdown } = useHelpers();
 
   return (
     <>

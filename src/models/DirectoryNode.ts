@@ -206,7 +206,6 @@ class DirectoryNode {
         this.parent
       );
 
-      const name = this.name;
       const parent = this.parent;
 
       //delete the folder
@@ -311,7 +310,7 @@ class DirectoryNode {
 
     const updatedMarkdownContent = markdownContent.replaceAll(
       regex,
-      (match, altText, blobUrl, imageTitle) => {
+      (match, altText, blobUrl, _) => {
         // imagePath now contains the relative path to the image
         // Use this information to construct the blob URL or any other logic
         // Here, I'm assuming you have a map of relative paths to blob URLs in your DirectoryNode

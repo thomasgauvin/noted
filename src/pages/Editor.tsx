@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { LocalFileSystem } from "../components/FileSystemAdapters/FileSystem/LocalFileSystem";
 import { FileEditor } from "../components/MarkdownEditor/FileEditor";
-import DirectoryNode, { createDirectoryNode } from "../models/DirectoryNode";
+import DirectoryNode from "../models/DirectoryNode";
 import { PanelLeftOpen, PanelLeftClose } from "lucide-react";
 import { WorkspaceSelector } from "../components/FileSystemAdapters/FileSystem/WorkspaceSelector";
 
@@ -66,7 +66,6 @@ export const EditorPage: React.FC = () => {
         {!selectedDirectory && (
           <WorkspaceSelector
             setSelectedDirectory={setSelectedDirectory}
-            className="flex flex-1"
           />
         )}
       </div>

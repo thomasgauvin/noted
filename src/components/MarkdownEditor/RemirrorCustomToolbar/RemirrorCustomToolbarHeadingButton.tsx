@@ -1,4 +1,4 @@
-import { useCommands, useActive, useHelpers } from "@remirror/react";
+import { useCommands, useActive } from "@remirror/react";
 import {
   LucideHeading,
   LucideHeading1,
@@ -7,7 +7,6 @@ import {
   LucideHeading4,
   LucideHeading5,
   LucideHeading6,
-  LucideQuote,
 } from "lucide-react";
 import {
   TooltipContent,
@@ -20,7 +19,6 @@ import {
 export const RemirrorCustomToolbarHeadingButton = () => {
   const active = useActive();
   const { toggleHeading } = useCommands();
-  const { getMarkdown } = useHelpers();
 
   const isHeadingActive = active.heading({level: 1}) || active.heading({level: 2}) || active.heading({level: 3}) || active.heading({level: 4}) || active.heading({level: 5}) || active.heading({level: 6});
   const isEnabled = toggleHeading.enabled({level: 1}) || toggleHeading.enabled({level: 2}) || toggleHeading.enabled({level: 3}) || toggleHeading.enabled({level: 4}) || toggleHeading.enabled({level: 5}) || toggleHeading.enabled({ level: 6 });
@@ -85,7 +83,6 @@ const RemirrorCustomToolbarHeadingDropdownOption = ({
 export const RemirrorCustomToolbarHeader1DropdownOption = () => {
   const { toggleHeading, focus } = useCommands();
   const active = useActive();
-  const { getMarkdown } = useHelpers();
 
   return (
     <RemirrorCustomToolbarHeadingDropdownOption
@@ -105,7 +102,6 @@ export const RemirrorCustomToolbarHeader1DropdownOption = () => {
 export const RemirrorCustomToolbarHeader2DropdownOption = () => {
   const { toggleHeading, focus } = useCommands();
   const active = useActive();
-  const { getMarkdown } = useHelpers();
 
   return (
     <>
@@ -127,7 +123,6 @@ export const RemirrorCustomToolbarHeader2DropdownOption = () => {
 export const RemirrorCustomToolbarHeader3DropdownOption = () => {
   const { toggleHeading, focus } = useCommands();
   const active = useActive();
-  const { getMarkdown } = useHelpers();
 
   return (
     <>
@@ -149,7 +144,6 @@ export const RemirrorCustomToolbarHeader3DropdownOption = () => {
 export const RemirrorCustomToolbarHeader4DropdownOption = () => {
   const { toggleHeading, focus } = useCommands();
   const active = useActive();
-  const { getMarkdown } = useHelpers();
 
   return (
     <>
@@ -171,7 +165,6 @@ export const RemirrorCustomToolbarHeader4DropdownOption = () => {
 export const RemirrorCustomToolbarHeader5DropdownOption = () => {
   const { toggleHeading, focus } = useCommands();
   const active = useActive();
-  const { getMarkdown } = useHelpers();
 
   return (
     <>
@@ -193,7 +186,6 @@ export const RemirrorCustomToolbarHeader5DropdownOption = () => {
 export const RemirrorCustomToolbarHeader6DropdownOption = () => {
   const { toggleHeading, focus } = useCommands();
   const active = useActive();
-  const { getMarkdown } = useHelpers();
 
   return (
     <>

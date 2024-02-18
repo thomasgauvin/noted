@@ -37,16 +37,16 @@ export const LocalFileSystem = ({
     fetchEntries();
   }, [selectedDirectory]);
 
-  const handleDirectorySelect = async () => {
-    try {
-      const directoryHandle = await (window as any).showDirectoryPicker();
-      setSelectedDirectory(
-        await createDirectoryNode(directoryHandle, undefined)
-      );
-    } catch (error) {
-      console.error("Error selecting directory:", error);
-    }
-  };
+  // const handleDirectorySelect = async () => {
+  //   try {
+  //     const directoryHandle = await (window as any).showDirectoryPicker();
+  //     setSelectedDirectory(
+  //       await createDirectoryNode(directoryHandle, undefined)
+  //     );
+  //   } catch (error) {
+  //     console.error("Error selecting directory:", error);
+  //   }
+  // };
 
   const getDirectoryRecursive = async (
     directoryHandle: FileSystemDirectoryHandle

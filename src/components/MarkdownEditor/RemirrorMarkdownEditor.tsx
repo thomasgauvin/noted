@@ -30,7 +30,6 @@ import {
 } from "remirror/extensions";
 import {
   EditorComponent,
-  MarkdownToolbar,
   Remirror,
   useRemirror,
 } from "@remirror/react";

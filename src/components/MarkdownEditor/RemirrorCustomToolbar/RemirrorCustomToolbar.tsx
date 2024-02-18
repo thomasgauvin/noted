@@ -21,16 +21,6 @@ import {
 } from "./RemirrorCustomToolbarHeadingButton";
 
 import * as Menubar from "@radix-ui/react-menubar";
-import {
-  ChevronRightIcon,
-  LucideHeading,
-  LucideHeading1,
-  LucideHeading2,
-  LucideHeading3,
-  LucideHeading4,
-  LucideHeading5,
-  LucideHeading6,
-} from "lucide-react";
 
 export const RemirrorCustomToolbar = ({}: {}) => {
   return (
