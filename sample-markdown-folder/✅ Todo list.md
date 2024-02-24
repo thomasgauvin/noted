@@ -72,14 +72,24 @@
     
 *   Easier way to go from title to text. Maybe enter should go to text, or tab.
     
+*   Deleting files should automatically update the folder view
+    
+*   Renaming files should not be supported in the file tree viewer, or should but currently isn't working
+    
+*   Add new folder/new file to tree viewer
+    
+*   Make it so that you can start editing and save later (maybe make it a zip on unsupported devices)
+    
+*   Make it mobile UI responsive
+    
 
 ### P1
 
 *   Support ignoring frontmatter ✅
     
-*   Add electron app for desktop, no notifications, and support for browsers that don't work
+*   Add support for Google Drive, GitHub syncing
     
-*   Autocomplete with Bring your own OpenAI key (or Ollama integration) ⏸️
+*   Autocomplete with Bring your own OpenAI key (or Ollama integration)
     
 *   add support to add links within the project ⏸️
     
@@ -90,6 +100,8 @@
 
 ### P2
 
+*   Add electron app for desktop, no notifications, and support for browsers that don't work
+    
 *   ❌ styling for mobile
     
     *   local file system doesn't even work on mobile...
