@@ -47,7 +47,7 @@
 
 ### P0
 
-*   The lines for indentation is a bit annoying (styling) ✅ (removed spines)
+*   The lines for indentation is a bit annoying (styling) (removed spines) ✅
     
 *   Add a button to indicate this doesn't work on unsupported browsers ✅
     
@@ -66,9 +66,9 @@
 
 *   Rename files issue causing duplicate selected files ✅
     
-*   Renaming a folder does not update the folder directory
+*   Renaming a folder does not update the folder directory when in a note within the folder
     
-*   Folder view should not have a Editor view, or the Editor view should be functional to rename a folder
+*   Folder view should not have a Editor view, or the Editor view should be functional to rename a folder ✅
     
 *   Easier way to go from title to text. Maybe enter should go to text, or tab.
     
@@ -76,11 +76,13 @@
     
 *   Renaming files should not be supported in the file tree viewer, or should but currently isn't working
     
-*   Add new folder/new file to tree viewer
+*   **Add new folder/new file to tree viewer**
     
 *   Make it so that you can start editing and save later (maybe make it a zip on unsupported devices)
     
 *   Make it mobile UI responsive
+    
+*   Make the UI have resizable side bar
     
 
 ### P1

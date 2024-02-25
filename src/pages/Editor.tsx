@@ -33,7 +33,7 @@ export const EditorPage: React.FC = () => {
         <div
           className={`flex-1 flex flex-col overflow-y-scroll
                scrollbar scrollbar-thumb-zinc-200 scrollbar-track-zinc-100 scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full 
-
+               ${selectedFile && selectedFile.isDirectory() ? " pattern-boxes pattern-gray-400 pattern-bg-white pattern-opacity-5 pattern-size-4" : ""}
                `}
         >
           <div className="p-1 sticky top-0 cursor-pointer">
@@ -50,16 +50,26 @@ export const EditorPage: React.FC = () => {
           </div>
           <div className="w-full max-w-3xl mx-auto pt-16 flex flex-1 flex-col">
             <div className="m-6">
-              {selectedFile?.blobUrl ? (
-                <div>
-                  <img src={selectedFile.blobUrl} />
-                </div>
-              ) : (
-                <FileEditor
-                  selectedFile={selectedFile}
-                  setSelectedFile={handleSetSelectedFile}
-                />
-              )}
+              {
+                selectedFile?.blobUrl && (
+                  <div>
+                    <img src={selectedFile.blobUrl} />
+                  </div>
+                )
+              }
+              {/* {
+                selectedFile && selectedFile.isDirectory() && (
+                  <div className="bg-red-100">test</div>
+                )
+              } */}
+              {
+                selectedFile && selectedFile.isFile() && (
+                  <FileEditor
+                    selectedFile={selectedFile}
+                    setSelectedFile={handleSetSelectedFile}
+                  />
+                )
+              }
             </div>
           </div>
         </div>

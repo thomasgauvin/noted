@@ -11,6 +11,7 @@ export default {
       nocompatible: true,
       preferredStrategy: "pseudoelements",
     }),
+    require('tailwindcss-bg-patterns'),
   ],
 };
 

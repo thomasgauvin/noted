@@ -303,6 +303,10 @@ class DirectoryNode {
     return !!this.directoryHandle;
   }
 
+  isFile(): boolean {
+    return !this.isDirectory();
+  }
+
   //function is markdown
   isMarkdown(): boolean {
     return this.name.endsWith(".md");
