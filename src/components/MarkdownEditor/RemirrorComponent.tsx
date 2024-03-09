@@ -40,10 +40,14 @@ interface SetProgress {
 
 export const RemirrorComponent = ({
   selectedFile,
-  setSelectedFile,
+  setSelectedFile,  
+  shouldFocus, 
+  setShouldFocus
 }: {
   selectedFile: DirectoryNode;
   setSelectedFile: (file: DirectoryNode) => void;
+  shouldFocus: boolean;
+  setShouldFocus: (shouldFocus: boolean) => void;
 }) => {
   const debouncedPersistMarkdown = useDebouncedCallback(
     // function
@@ -140,6 +144,8 @@ export const RemirrorComponent = ({
           customUploadHandler={customUploadHandler}
           selectedFile={selectedFile}
           setSelectedFile={setSelectedFile}
+          shouldFocus={shouldFocus}
+          setShouldFocus={setShouldFocus}
         ></RemirrorMarkdownEditor>
       </div>
     </div>

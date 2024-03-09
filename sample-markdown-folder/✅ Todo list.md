@@ -66,23 +66,27 @@
 
 *   Rename files issue causing duplicate selected files ✅
     
-*   Renaming a folder does not update the folder directory when in a note within the folder
-    
 *   Folder view should not have a Editor view, or the Editor view should be functional to rename a folder ✅
     
-*   Easier way to go from title to text. Maybe enter should go to text, or tab.
+*   Easier way to go from title to text. Maybe enter should go to text, or tab. ✅
     
-*   Deleting files should automatically update the folder view
+*   Deleting files should automatically update the folder view ✅
     
-*   Renaming files should not be supported in the file tree viewer, or should but currently isn't working
+*   Renaming files in tree view should update the folder view ✅
     
-*   **Add new folder/new file to tree viewer**
+*   Renaming a folder does not update the folder directory when in a note within the folder ✅
+    
+*   Deleting an empty top level folder caused an error ✅
+    
+*   Renaming files should not be supported in the file tree viewer, or should but currently isn't working ✅
+    
+*   Add new folder/new file to tree viewer ✅
     
 *   Make it so that you can start editing and save later (maybe make it a zip on unsupported devices)
     
 *   Make it mobile UI responsive
     
-*   Make the UI have resizable side bar
+*   Have the UI have top level folders as sections
     
 
 ### P1
@@ -93,20 +97,17 @@
     
 *   Autocomplete with Bring your own OpenAI key (or Ollama integration)
     
+*   Export to website (static site generation)
+    
 *   add support to add links within the project ⏸️
     
 *   hide folder create/delete until hover of item ⏸️
     
 *   add lots of CSS transitions ⏸️
     
+*   Make the UI have resizable side bar
+    
 
 ### P2
 
 *   Add electron app for desktop, no notifications, and support for browsers that don't work
-    
-*   ❌ styling for mobile
-    
-    *   local file system doesn't even work on mobile...
-        
-
-### P3+

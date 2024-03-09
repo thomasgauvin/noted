@@ -6,16 +6,14 @@ import { PanelLeftOpen, PanelLeftClose } from "lucide-react";
 import { WorkspaceSelector } from "../components/FileSystemAdapters/FileSystem/WorkspaceSelector";
 
 export const EditorPage: React.FC = () => {
-  const [selectedFile, setSelectedFile] = useState<DirectoryNode | undefined>(
-    undefined
-  ); // [selectedFile, setSelectedFile
+  const [selectedFile, setSelectedFile] = useState<DirectoryNode | null>(null); // [selectedFile, setSelectedFile
   const [selectedDirectory, setSelectedDirectory] =
     useState<DirectoryNode | null>(null);
 
   const [panelIsOpen, setPanelIsOpen] = useState(true);
 
-  const handleSetSelectedFile = async (node: DirectoryNode | undefined) => {
-    if (!node) return;
+  const handleSetSelectedFile = async (node: DirectoryNode | null) => {
+    if (!node) return setSelectedFile(null);
     await node.loadFileContent();
     setSelectedFile(node);
   };
@@ -33,7 +31,7 @@ export const EditorPage: React.FC = () => {
         <div
           className={`flex-1 flex flex-col overflow-y-scroll
                scrollbar scrollbar-thumb-zinc-200 scrollbar-track-zinc-100 scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full 
-               ${selectedFile && selectedFile.isDirectory() ? " pattern-boxes pattern-gray-400 pattern-bg-white pattern-opacity-5 pattern-size-4" : ""}
+               ${!selectedFile || (selectedFile && selectedFile.isDirectory()) ? " pattern-boxes pattern-gray-400 pattern-bg-white pattern-opacity-5 pattern-size-4" : ""}
                `}
         >
           <div className="p-1 sticky top-0 cursor-pointer">

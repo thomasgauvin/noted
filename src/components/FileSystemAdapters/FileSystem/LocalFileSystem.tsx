@@ -6,12 +6,12 @@ import { useEffect } from "react";
 import DirectoryNode, {
   createDirectoryNode,
 } from "../../../models/DirectoryNode";
-import { Folder } from "./Folder";
+import { FileSystemItem } from "./FileSystemItem";
 import { FilePlus, FolderPlus } from "lucide-react";
 
 //sample react function
 export const LocalFileSystem = ({
-  selectedDirectory,
+  selectedDirectory, //rootDirectory
   setSelectedDirectory,
   selectedFile,
   setSelectedFile,
@@ -37,17 +37,6 @@ export const LocalFileSystem = ({
     fetchEntries();
   }, [selectedDirectory]);
 
-  // const handleDirectorySelect = async () => {
-  //   try {
-  //     const directoryHandle = await (window as any).showDirectoryPicker();
-  //     setSelectedDirectory(
-  //       await createDirectoryNode(directoryHandle, undefined)
-  //     );
-  //   } catch (error) {
-  //     console.error("Error selecting directory:", error);
-  //   }
-  // };
-
   const getDirectoryRecursive = async (
     directoryHandle: FileSystemDirectoryHandle
   ) => {
@@ -65,8 +54,21 @@ export const LocalFileSystem = ({
 
   const handleDeleteFile = async (node: DirectoryNode) => {
     console.log("deleting file");
-    const parent = await node.delete();
-    setSelectedFile(getClosestParentsFirstFile(parent)); // TODO: set to root directory
+    await node.delete();
+
+    //determine if the selected file still exists, if it does, set the selected file to it (leave as is), otherwise set it to null
+    if(selectedFile){
+      const selectedFileAsFoundInCurrentDirectory =
+        selectedDirectory?.findChildByPath(selectedFile?.getFullPath());
+      if(selectedFileAsFoundInCurrentDirectory){
+        setSelectedFile(selectedFileAsFoundInCurrentDirectory.getCopy() || null);
+      } else {
+        setSelectedFile(null);
+      }
+    }
+    else{
+      setSelectedFile(null);
+    }
   };
 
   const createFileHandlingDuplicates = async (parent: DirectoryNode) => {
@@ -134,7 +136,15 @@ export const LocalFileSystem = ({
     const newName = prompt("Enter new name for folder", node.name);
     if (newName) {
       await node.renameFolder(newName);
-      setSelectedFile(getClosestParentsFirstFile(node));
+      setSelectedFile(selectedFile?.getCopy() || null);
+    }
+  }
+
+  const handleRenameFile = async (node: DirectoryNode) => {
+    const newName = prompt("Enter new name for file", node.getName() || node.name);
+    if (newName) {
+      await node.renameFile(newName);
+      setSelectedFile(selectedFile?.getCopy() || null);
     }
   }
 
@@ -193,7 +203,7 @@ export const LocalFileSystem = ({
             </div>
           </div>
           <div className="font-normal p-1">
-            <Folder
+            <FileSystemItem
               node={selectedDirectory}
               depth={0}
               handleFileSelect={handleFileSelect}
@@ -202,6 +212,7 @@ export const LocalFileSystem = ({
               handleCreateFile={handleCreateFile}
               handleCreateFolder={handleCreateFolder}
               handleRenameFolder={handleRenameFolder}
+              handleRenameFile={handleRenameFile}
             />
           </div>
         </div>

@@ -48,6 +48,7 @@ class DirectoryNode {
     return (
       removeMdExtension(this.fileHandle?.name) ||
       removeMdExtension(this.directoryHandle?.name) ||
+      this.name ||
       null
     );
   }
@@ -418,6 +419,48 @@ class DirectoryNode {
 
     return currentNode;
   };
+
+  findChildByPath = (path: string): DirectoryNode | undefined => {
+    console.log("relative path:", path);
+    // Split the relative path into individual segments
+    const pathSegments = path.split("/");
+
+    // Start from the current node
+    let currentNode: DirectoryNode | undefined = this;
+
+    for (let segment of pathSegments) {
+      // Handle parent directory indicator ".."
+      if (segment === "." || segment === this.name) {
+        continue;
+      }
+      if (segment === "..") {
+        if (!currentNode?.parent) {
+          // If the current node does not have a parent, return null, we weren't able to find the node
+          return undefined;
+        }
+        currentNode = currentNode?.parent;
+      } else {
+        // Find the child node with the matching name
+        const matchingChild : DirectoryNode | undefined = currentNode?.children.find(
+          (child) => child.name === segment
+        );
+
+        if (!matchingChild) {
+          // If the child is not found or is not a directory, return undefined
+          return undefined;
+        }
+
+        if (matchingChild?.isDirectory()) {
+          currentNode = matchingChild;
+          continue;
+        }
+
+        currentNode = matchingChild;
+      }
+    }
+
+    return currentNode;
+  } 
 
   async delete(skipConfirmation?: boolean): Promise<DirectoryNode | undefined> {
     //return parent if it exists

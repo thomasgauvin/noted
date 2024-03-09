@@ -4,7 +4,7 @@ import { ChevronDown, ChevronRight, FilePlus, FolderPlus } from "lucide-react";
 import RightClickMenu from "./RightClickMenu";
 import * as ContextMenu from "@radix-ui/react-context-menu";
 
-export function Folder({
+export function FileSystemItem({
   node,
   depth,
   handleFileSelect,
@@ -12,7 +12,8 @@ export function Folder({
   handleDeleteFile,
   handleCreateFile,
   handleCreateFolder,
-  handleRenameFolder
+  handleRenameFolder,
+  handleRenameFile,
 }: {
   node: DirectoryNode;
   depth: number;
@@ -22,6 +23,7 @@ export function Folder({
   handleCreateFile: (node: DirectoryNode) => void;
   handleCreateFolder: (node: DirectoryNode) => void;
   handleRenameFolder: (node: DirectoryNode) => void;
+  handleRenameFile: (node: DirectoryNode) => void;
 }) {
   const [expanded, setExpanded] = useState(depth === 0);
 
@@ -106,7 +108,7 @@ export function Folder({
                     )}
                   </>
                 ) : (
-                  <Folder
+                  <FileSystemItem
                     node={child}
                     depth={depth + 1}
                     handleFileSelect={handleFileSelect}
@@ -115,12 +117,27 @@ export function Folder({
                     handleCreateFile={handleCreateFile}
                     handleCreateFolder={handleCreateFolder}
                     handleRenameFolder={handleRenameFolder}
+                    handleRenameFile={handleRenameFile}
                   /> // Recursively render directory
                 )}
               </ContextMenu.Trigger>
               <RightClickMenu
+                onCreateFile={
+                  child.isDirectory()
+                    ? () => handleCreateFile(child)
+                    : undefined
+                }
+                onCreateFolder={
+                  child.isDirectory()
+                    ? () => handleCreateFolder(child)
+                    : undefined
+                }
                 onDelete={() => handleDeleteFile(child)}
-                onRename={() => handleRenameFolder(child)}
+                onRename={
+                  child.isDirectory() ? 
+                  () => handleRenameFolder(child) :
+                  () => handleRenameFile(child)
+                }
               />
             </ContextMenu.Root>
           </div>
