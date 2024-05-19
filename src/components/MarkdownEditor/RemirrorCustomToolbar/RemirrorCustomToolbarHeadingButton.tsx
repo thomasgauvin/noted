@@ -41,7 +41,7 @@ export const RemirrorCustomToolbarHeadingButton = () => {
         <TooltipContent
           side="bottom"
           className={`mb-1 bg-zinc-800 text-white 
-            opacity-80 z-50 overflow-hidden rounded-md px-3 py-1.5 
+            opacity-80 z-30 overflow-hidden rounded-md px-3 py-1.5 
             text-xs text-primary-foreground
           `}
         >

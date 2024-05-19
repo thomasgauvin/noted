@@ -59,7 +59,7 @@ export const FileEditor = ({
         value={title}
         onChange={handleOnChangeFileName}
         onKeyDown={handleOnKeyDown}
-        className="text-5xl font-bold w-full bg-transparent focus:outline-none pb-4 resize-none"
+        className="text-3xl md:text-4xl font-bold w-full bg-transparent focus:outline-none pb-4 resize-none"
       />
       <RemirrorComponent
         selectedFile={selectedFile}

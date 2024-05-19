@@ -7,7 +7,7 @@ import DirectoryNode, {
   createDirectoryNode,
 } from "../../../models/DirectoryNode";
 import { FileSystemItem } from "./FileSystemItem";
-import { FilePlus, FolderPlus } from "lucide-react";
+import { FilePlus, FolderPlus, X } from "lucide-react";
 
 //sample react function
 export const LocalFileSystem = ({
@@ -15,13 +15,19 @@ export const LocalFileSystem = ({
   setSelectedDirectory,
   selectedFile,
   setSelectedFile,
-  hidden
+  hidden,
+  style,
+  setPanelIsOpen,
+  panelIsOpen,
 }: {
   selectedDirectory: DirectoryNode | null;
   setSelectedDirectory: (directory: DirectoryNode | null) => void;
   selectedFile: DirectoryNode | null;
   setSelectedFile: (node: DirectoryNode | null) => Promise<void>;
-  hidden: boolean;
+  hidden: boolean | null;
+  style?: object | null;
+  setPanelIsOpen: (isOpen: boolean) => void;
+  panelIsOpen: boolean;
 }) => {
   useEffect(() => {
     const fetchEntries = async () => {
@@ -48,8 +54,14 @@ export const LocalFileSystem = ({
     }
   };
 
+  const isMobile = () => { return window.innerWidth < 768 };
+
   const handleFileSelect = async (node: DirectoryNode) => {
     setSelectedFile(node);
+    //if on mobile, close panel
+    if (isMobile()){
+      setPanelIsOpen(false);
+    }
   };
 
   const handleDeleteFile = async (node: DirectoryNode) => {
@@ -57,16 +69,17 @@ export const LocalFileSystem = ({
     await node.delete();
 
     //determine if the selected file still exists, if it does, set the selected file to it (leave as is), otherwise set it to null
-    if(selectedFile){
+    if (selectedFile) {
       const selectedFileAsFoundInCurrentDirectory =
         selectedDirectory?.findChildByPath(selectedFile?.getFullPath());
-      if(selectedFileAsFoundInCurrentDirectory){
-        setSelectedFile(selectedFileAsFoundInCurrentDirectory.getCopy() || null);
+      if (selectedFileAsFoundInCurrentDirectory) {
+        setSelectedFile(
+          selectedFileAsFoundInCurrentDirectory.getCopy() || null
+        );
       } else {
         setSelectedFile(null);
       }
-    }
-    else{
+    } else {
       setSelectedFile(null);
     }
   };
@@ -138,15 +151,18 @@ export const LocalFileSystem = ({
       await node.renameFolder(newName);
       setSelectedFile(selectedFile?.getCopy() || null);
     }
-  }
+  };
 
   const handleRenameFile = async (node: DirectoryNode) => {
-    const newName = prompt("Enter new name for file", node.getName() || node.name);
+    const newName = prompt(
+      "Enter new name for file",
+      node.getName() || node.name
+    );
     if (newName) {
       await node.renameFile(newName);
       setSelectedFile(selectedFile?.getCopy() || null);
     }
-  }
+  };
 
   const getClosestParentsFirstFile = (
     node: DirectoryNode | null
@@ -169,36 +185,49 @@ export const LocalFileSystem = ({
 
   return (
     <div
-      className={`min-w-16 bg-zinc-50 overflow-y-scroll max-w-80 ${
+      className={`min-w-16 bg-zinc-50 overflow-y-scroll ${
         hidden ? "hidden" : ""
       }
-       scrollbar scrollbar-thumb-zinc-200 scrollbar-track-zinc-100 scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full 
-    `}
+        h-full scrollbar scrollbar-thumb-zinc-200 scrollbar-track-zinc-100 scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full 
+      `}
+      style={style}
     >
       {selectedDirectory && (
         <div className="divide-y font-semibold text-base">
-          <div className="text-sm p-2 text-zinc-500 flex flex-row justify-between">
-            <div>{selectedDirectory.getName()}</div>
-            <div className="flex flex-row">
-              <div className="flex items-center py-1 px-0.5 ml-0.5 hover:bg-zinc-300 text-zinc-400 hover:text-zinc-600 rounded">
-                <FilePlus
-                  size={15}
-                  className="cursor-pointer"
-                  onClick={(e) => {
-                    handleCreateFile(selectedDirectory);
-                    e.stopPropagation();
-                  }}
-                />
+          <div className="text-sm p-2 text-zinc-500 flex flex-row justify-between items-center min-w-0 overflow-ellipsis">
+            <div className="flex items-center shrink min-w-0">
+              {panelIsOpen && selectedFile?.isFile() && (
+                <>
+                  <div className="pr-1 sticky top-0 cursor-pointer md:hidden">
+                    <div className="w-fit p-1 hover:bg-zinc-200 rounded  text-zinc-400 hover:text-zinc-500 ">
+                      <X onClick={() => setPanelIsOpen(false)} size={18} />
+                    </div>
+                  </div>
+                </>
+              )}
+              <div className="overflow-hidden whitespace-nowrap overflow-ellipsis min-w-0">
+                {selectedDirectory.getName()}
               </div>
-              <div className="flex items-center py-1 px-0.5 ml-0.5 hover:bg-zinc-300 text-zinc-400 hover:text-zinc-600 rounded">
-                <FolderPlus
-                  size={15}
-                  className="cursor-pointer  "
-                  onClick={(e) => {
-                    handleCreateFolder(selectedDirectory);
-                    e.stopPropagation();
-                  }}
-                />
+            </div>
+
+            <div className="flex flex-row">
+              <div
+                className="flex items-center w-fit p-1  ml-0.5 hover:bg-zinc-300 text-zinc-400 hover:text-zinc-600 rounded cursor-pointer"
+                onClick={(e) => {
+                  handleCreateFile(selectedDirectory);
+                  e.stopPropagation();
+                }}
+              >
+                <FilePlus size={18} />
+              </div>
+              <div
+                className="flex items-center w-fit p-1 ml-0.5 hover:bg-zinc-300 text-zinc-400 hover:text-zinc-600 rounded cursor-pointer"
+                onClick={(e) => {
+                  handleCreateFolder(selectedDirectory);
+                  e.stopPropagation();
+                }}
+              >
+                <FolderPlus size={18} />
               </div>
             </div>
           </div>

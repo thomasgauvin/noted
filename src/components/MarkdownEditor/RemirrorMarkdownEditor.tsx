@@ -120,7 +120,25 @@ export const RemirrorMarkdownEditor: FC<
     <Remirror
       manager={manager}
       {...rest}
-      classNames={["overflow-hidden", "outline-none", "prose", "prose-zinc"]}
+      classNames={[
+        "overflow-hidden",
+        "outline-none",
+        "prose",
+        "md:prose-base",
+        "prose-sm",
+        "prose-zinc",
+        "prose-p:m-0",
+        "prose-li:m-0",
+        "prose-ul:m-0",
+        "prose-ol:m-0",
+        "prose-headings:mt-6",
+        "prose-headings:mb-2",
+        "prose-headings:font-semibold",
+        "prose-p:leading-6",
+        "[&>p]:mt-4",
+        "[&>ul]:mt-4",
+        "[&>ol]:mt-4",
+      ]}
     >
       {/* <MarkdownToolbar /> */}
       <RemirrorCustomToolbar />

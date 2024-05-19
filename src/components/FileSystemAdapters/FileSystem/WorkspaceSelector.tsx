@@ -43,7 +43,7 @@ export function WorkspaceSelector({
     }, []);
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-300 bg-opacity-75">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-300">
         <div className="bg-white rounded shadow-md flex flex-col max-w-96">
           <div className="mx-8 mt-8 mb-4">
             <div className="flex flex-col space-y-1.5 ">
