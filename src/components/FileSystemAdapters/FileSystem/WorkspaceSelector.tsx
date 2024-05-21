@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import DirectoryNode, { createDirectoryNode } from "../../../models/DirectoryNode";
 import { Button } from "../../ui/Button";
 import * as Separator from '@radix-ui/react-separator';
+import { showDirectoryPicker } from "native-file-system-adapter";
 
 export function WorkspaceSelector({
     setSelectedDirectory
@@ -12,8 +13,9 @@ export function WorkspaceSelector({
 
     const handleDirectorySelect = async () => {
         try {
-          const directoryHandle = await (window as any).showDirectoryPicker();
+          const directoryHandle = await showDirectoryPicker();
           if(!directoryHandle) return;
+
           setSelectedDirectory(
             await createDirectoryNode(directoryHandle, undefined)
           );
@@ -39,7 +41,7 @@ export function WorkspaceSelector({
     }
 
     useEffect(() => {
-        setIsSupported('showDirectoryPicker' in window && typeof window.showDirectoryPicker === 'function');
+        setIsSupported(typeof showDirectoryPicker === 'function');
     }, []);
 
     return (
@@ -81,7 +83,7 @@ export function WorkspaceSelector({
               ) : (
                 <p className="text-red-700 text-sm italic">
                   This browser does not support file access at this time. Please
-                  use a compatible browser (Google Chrome, Microsoft Edge, or
+                  use a compatible browser (desktop versions of Google Chrome, Microsoft Edge, or
                   Opera) for direct file saving.
                 </p>
               )}

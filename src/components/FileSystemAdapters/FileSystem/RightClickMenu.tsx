@@ -9,10 +9,12 @@ const RightClickMenu = ({ onCreateFile, onCreateFolder, onDelete, onRename }:
     onRename: () => void
   }) => {
   return (
-    <ContextMenu.Portal>
+    <ContextMenu.Portal
+    >
       <ContextMenu.Content
-        className={`min-w-[220px] bg-white rounded-md overflow-hidden p-[5px] 
+        className={`min-w-[220px] bg-white rounded-md overflow-hidden p-[5px] z-40
         shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),_0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)]`}
+
       > 
         {
           onCreateFile && (

@@ -16,7 +16,6 @@ export const LocalFileSystem = ({
   selectedFile,
   setSelectedFile,
   hidden,
-  style,
   setPanelIsOpen,
   panelIsOpen,
 }: {
@@ -25,7 +24,6 @@ export const LocalFileSystem = ({
   selectedFile: DirectoryNode | null;
   setSelectedFile: (node: DirectoryNode | null) => Promise<void>;
   hidden: boolean | null;
-  style?: object | null;
   setPanelIsOpen: (isOpen: boolean) => void;
   panelIsOpen: boolean;
 }) => {
@@ -185,16 +183,15 @@ export const LocalFileSystem = ({
 
   return (
     <div
-      className={`min-w-16 bg-zinc-50 overflow-y-scroll ${
+      className={`bg-zinc-50 overflow-y-scroll ${
         hidden ? "hidden" : ""
       }
         h-full scrollbar scrollbar-thumb-zinc-200 scrollbar-track-zinc-100 scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full 
       `}
-      style={style}
     >
       {selectedDirectory && (
         <div className="divide-y font-semibold text-base">
-          <div className="text-sm p-2 text-zinc-500 flex flex-row justify-between items-center min-w-0 overflow-ellipsis">
+          <div className="text-sm p-2 text-zinc-500 flex flex-row justify-between items-center min-w-0">
             <div className="flex items-center shrink min-w-0">
               {panelIsOpen && selectedFile?.isFile() && (
                 <>

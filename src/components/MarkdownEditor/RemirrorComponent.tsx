@@ -57,7 +57,8 @@ export const RemirrorComponent = ({
   );
 
   const handleMarkdownChange = (markdown: string) => {
-    setSelectedFile(selectedFile?.updateFileContent(markdown).getCopy()); //updating state to cause rerender (direct updates to objects/objecttree do not cause rerender)
+    const updatedFile = selectedFile?.updateFileContent(markdown).getCopy();
+    setSelectedFile(updatedFile); //updating state to cause rerender (direct updates to objects/objecttree do not cause rerender)
     debouncedPersistMarkdown(markdown);
   };
 

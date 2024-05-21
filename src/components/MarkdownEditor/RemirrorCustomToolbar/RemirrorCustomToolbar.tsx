@@ -24,7 +24,16 @@ import * as Menubar from "@radix-ui/react-menubar";
 
 export const RemirrorCustomToolbar = ({}: {}) => {
   return (
-    <div className="fixed bottom-0 z-30 my-4 justify-center items-center w-[36rem] lg:w-[48rem]">
+    <div
+      className={`fixed bottom-0 z-30 my-4 justify-center items-center 
+    sm:max-w-[calc(48rem-1.5rem-1.5rem)] 
+    md:max-w-[calc(48rem-2rem-2rem)]
+    lg:max-w-[calc(48rem-2.5rem-2.5rem)]
+    -sm:w-full md:w-fit
+    w-[calc(100%-4rem)] lg:w-full
+    mx-0
+    `}
+    >
       <div className="flex justify-center items-center ">
         <Menubar.Root className="border overflow-hidden inline-flex flex-shrink-0 bg-white rounded-full shadow-lg">
           <Menubar.Menu>
@@ -72,7 +81,7 @@ export const RemirrorCustomToolbar = ({}: {}) => {
               <Menubar.Separator className="h-8 w-0.5 bg-zinc-100" />
             </div>
             <RemirrorCustomToolbarUndoButton />
-            <RemirrorCustomToolbarRedoButton  />
+            <RemirrorCustomToolbarRedoButton />
           </Menubar.Menu>
         </Menubar.Root>
       </div>

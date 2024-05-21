@@ -175,7 +175,7 @@ class DirectoryNode {
   async renameFolder(newName: string): Promise<void | Error> {
     const newFolderName = newName;
 
-    if(this.directoryHandle && this.parent && this.parent.directoryHandle){
+    if (this.directoryHandle && this.parent && this.parent.directoryHandle) {
       //search the parent to see if the file with the new name already exists
       let existingFolderHandle;
       try {
@@ -441,9 +441,8 @@ class DirectoryNode {
         currentNode = currentNode?.parent;
       } else {
         // Find the child node with the matching name
-        const matchingChild : DirectoryNode | undefined = currentNode?.children.find(
-          (child) => child.name === segment
-        );
+        const matchingChild: DirectoryNode | undefined =
+          currentNode?.children.find((child) => child.name === segment);
 
         if (!matchingChild) {
           // If the child is not found or is not a directory, return undefined
@@ -460,7 +459,7 @@ class DirectoryNode {
     }
 
     return currentNode;
-  } 
+  };
 
   async delete(skipConfirmation?: boolean): Promise<DirectoryNode | undefined> {
     //return parent if it exists
@@ -483,12 +482,11 @@ class DirectoryNode {
     //if this is a folder, ask the
     if (this.directoryHandle) {
       //delete all the files in the folder
-      try{
+      try {
         for (const child of this.children) {
           await child.delete(true);
         }
-      }
-      catch(error){
+      } catch (error) {
         console.log("error deleting child", error); //possible that the file has been moved and can't be deleted
       }
 
@@ -679,7 +677,7 @@ export const createDirectoryNode = async (
     }
 
     if (entry.kind === "directory") {
-      const subdirectoryHandle = entry as FileSystemDirectoryHandle;
+      const subdirectoryHandle = entry;
       const subdirectoryNode = await createDirectoryNode(
         subdirectoryHandle,
         directoryNode
@@ -688,7 +686,7 @@ export const createDirectoryNode = async (
         entries.push(subdirectoryNode);
       }
     } else {
-      const fileHandle = entry as FileSystemFileHandle;
+      const fileHandle = entry;
 
       const file = await fileHandle.getFile();
 
@@ -722,16 +720,22 @@ export const createDirectoryNode = async (
   return directoryNode;
 };
 
-async function copyDirectory(sourceDirectoryHandle: FileSystemDirectoryHandle, targetDirectoryHandle: FileSystemDirectoryHandle) {
+async function copyDirectory(
+  sourceDirectoryHandle: FileSystemDirectoryHandle,
+  targetDirectoryHandle: FileSystemDirectoryHandle
+) {
   //@ts-expect-error
   for await (const [name, entry] of sourceDirectoryHandle.entries()) {
     if (entry.kind === "directory") {
-      const newDirectoryHandle = await targetDirectoryHandle.getDirectoryHandle(name, {
-        create: true,
-      });
+      const newDirectoryHandle = await targetDirectoryHandle.getDirectoryHandle(
+        name,
+        {
+          create: true,
+        }
+      );
       await copyDirectory(entry, newDirectoryHandle);
     } else {
-      const subdirectoryHandle = entry as FileSystemDirectoryHandle;
+      const subdirectoryHandle = entry;
       //@ts-expect-error
       await subdirectoryHandle.move(targetDirectoryHandle, name);
     }

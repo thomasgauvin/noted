@@ -5,13 +5,15 @@ const MyComponent = ({
   minWidth,
   maxWidth,
   setWidth,
-  hidden
+  hidden,
+  style
 } : {
   children: React.ReactNode,
   minWidth: number,
   maxWidth: number,
   setWidth: (fn: any) => void,
-  hidden?: boolean
+  hidden?: boolean,
+  style?: React.CSSProperties
 }) => {
   //resizing sidebar
   const isResized = useRef(false);
@@ -39,9 +41,10 @@ const MyComponent = ({
 
   return (
     <div
-      className={`md:static fixed z-40 h-full flex ${
+      className={`md:static fixed z-40 h-full flex flex-1 ${
         hidden ? "hidden" : ""
       }`}
+      style={style}
     >
       {children}
       <div
