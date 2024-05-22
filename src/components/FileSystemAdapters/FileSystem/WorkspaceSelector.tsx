@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import DirectoryNode, { createDirectoryNode } from "../../../models/DirectoryNode";
 import { Button } from "../../ui/Button";
 import * as Separator from '@radix-ui/react-separator';
-import { showDirectoryPicker } from "native-file-system-adapter";
 
 export function WorkspaceSelector({
     setSelectedDirectory
@@ -13,7 +12,7 @@ export function WorkspaceSelector({
 
     const handleDirectorySelect = async () => {
         try {
-          const directoryHandle = await showDirectoryPicker();
+          const directoryHandle = await window.showDirectoryPicker();
           if(!directoryHandle) return;
 
           setSelectedDirectory(
