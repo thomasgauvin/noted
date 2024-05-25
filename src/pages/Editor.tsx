@@ -50,12 +50,9 @@ export const EditorPage: React.FC = () => {
         //I am using ! to signify important such that the class overrides the style because
         //the style needs to be in line since it relies on width state and cannot be outside
         //in css
-        className={`flex flex-1 h-full w-full relative
+        className={`flex flex-1 h-full w-full relative grow
           ${panelIsOpen ? `-md:!max-w-full` : ""}
         `}
-        style={{
-          maxWidth: `${panelIsOpen ? `calc(100% - ${width / 16}rem)` : "100%"}`,
-        }}
       >
         <div
           className={`flex-1 flex flex-col md:overflow-y-scroll

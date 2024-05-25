@@ -84,13 +84,15 @@
     
 *   Make it so that you can start editing and save later (maybe make it a zip on unsupported devices)
     
-*   Make it mobile UI responsive
+*   Make it mobile UI responsive <-- 🟡⬅️
     
-*   Have the UI have top level folders as sections
+*   After entering the title, click enter, and then it deselects, kinda annoying (upon note creation)
     
 
 ### P1
 
+*   Have the UI have top level folders as sections
+    
 *   Support ignoring frontmatter ✅
     
 *   Add support for Google Drive, GitHub syncing

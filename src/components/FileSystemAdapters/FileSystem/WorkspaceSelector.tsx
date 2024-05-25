@@ -110,7 +110,7 @@ export function WorkspaceSelector({
             <div className="my-4">
               <Separator.Root className="bg-zinc-200 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full my-[15px]" />
             </div>
-            <div className="flex flex-row items-center justify-between">
+            {/* <div className="flex flex-row items-center justify-between">
               <Button
                 onClick={handleDecideLater}
                 className="rounded w-full hover:border-zinc-200"
@@ -118,7 +118,7 @@ export function WorkspaceSelector({
               >
                 Decide Later
               </Button>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

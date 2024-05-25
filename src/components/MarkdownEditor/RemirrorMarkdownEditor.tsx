@@ -124,6 +124,7 @@ export const RemirrorMarkdownEditor: FC<
         "overflow-hidden",
         "outline-none",
         "prose",
+        "max-w-3xl",
         "md:prose-base",
         "prose-sm",
         "prose-zinc",

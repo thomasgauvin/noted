@@ -41,7 +41,7 @@ const MyComponent = ({
 
   return (
     <div
-      className={`md:static fixed z-40 h-full flex flex-1 ${
+      className={`md:static grow-0 fixed z-40 h-full flex flex-1 ${
         hidden ? "hidden" : ""
       }`}
       style={style}
