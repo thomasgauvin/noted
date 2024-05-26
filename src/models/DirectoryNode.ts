@@ -38,6 +38,8 @@ class DirectoryNode {
     this.blobUrl = blobUrl;
     this.replacedImages = replacedImages || {};
     this.frontmatter = frontmatter || null;
+
+    this.sortChildrenAlphabetically();
   }
 
   getId(): string {
@@ -87,6 +89,10 @@ class DirectoryNode {
         frontmatter: null,
       };
     }
+  }
+
+  sortChildrenAlphabetically() {
+    this.children.sort((a, b) => a.name.localeCompare(b.name));
   }
 
   async loadFileContent(): Promise<string | null> {
@@ -226,6 +232,12 @@ class DirectoryNode {
           return child;
         }
       });
+
+      this.parent.sortChildrenAlphabetically();
+
+
+      console.log("renamed file, updated children", this.parent.children);
+      console.log(this.parent.children);
     }
   }
 
@@ -279,6 +291,11 @@ class DirectoryNode {
           return child;
         }
       });
+
+      this.parent.sortChildrenAlphabetically();
+
+      console.log("renamed file, updated children", this.parent.children);
+      console.log(this.parent.children)
     }
   }
 
@@ -556,6 +573,8 @@ class DirectoryNode {
     //add the new file to the parent
     this.children.push(newFileNode);
 
+    this.sortChildrenAlphabetically();
+
     return newFileNode;
   }
 
@@ -610,6 +629,8 @@ class DirectoryNode {
 
     //add the new file to the parent
     this.children.push(newFolderNode);
+
+    this.sortChildrenAlphabetically();
 
     return newFolderNode;
   }
@@ -716,6 +737,8 @@ export const createDirectoryNode = async (
   }
 
   directoryNode.children = entries;
+
+  directoryNode.sortChildrenAlphabetically();
 
   return directoryNode;
 };
