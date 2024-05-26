@@ -1,10 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, createContext } from "react";
 import { LocalFileSystem } from "../components/FileSystemAdapters/FileSystem/LocalFileSystem";
 import { FileEditor } from "../components/MarkdownEditor/FileEditor";
 import DirectoryNode from "../models/DirectoryNode";
 import { PanelLeftOpen, PanelLeftClose } from "lucide-react";
 import { WorkspaceSelector } from "../components/FileSystemAdapters/FileSystem/WorkspaceSelector";
 import ResizableSidebar from "../components/ui/ResizableSidebar";
+
+export const SidebarContext = createContext({
+  width:300,
+  panelIsOpen: true
+});
 
 export const EditorPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<DirectoryNode | null>(null); // [selectedFile, setSelectedFile
@@ -23,13 +28,17 @@ export const EditorPage: React.FC = () => {
   };
 
   return (
+    <SidebarContext.Provider value={{
+      width: width,
+      panelIsOpen: panelIsOpen
+    }}>
     <div className="EditorPage flex h-dvh w-full overflow-hidden">
       <ResizableSidebar
         minWidth={minWidth}
         maxWidth={maxWidth}
         setWidth={setWidth}
         hidden={!panelIsOpen || !selectedDirectory}
-        style={{ maxWidth: `${width / 16}rem` }}
+        style={{ maxWidth: `${width}px` }}
       >
         <LocalFileSystem
           selectedDirectory={selectedDirectory}
@@ -152,5 +161,6 @@ export const EditorPage: React.FC = () => {
         </div>
       </main>
     </div>
+    </SidebarContext.Provider>
   );
 };

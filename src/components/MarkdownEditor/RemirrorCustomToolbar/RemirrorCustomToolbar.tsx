@@ -1,3 +1,5 @@
+import { useContext } from 'react';
+
 //import all the above from the same file
 import { 
   RemirrorCustomToolbarBlockquoteButton,
@@ -20,19 +22,31 @@ import {
   RemirrorCustomToolbarHeadingButton,
 } from "./RemirrorCustomToolbarHeadingButton";
 
+import { SidebarContext } from "../../../pages/Editor";
+
 import * as Menubar from "@radix-ui/react-menubar";
 
 export const RemirrorCustomToolbar = ({}: {}) => {
+
+  const { width, panelIsOpen } = useContext(SidebarContext);
+
+  console.log(`calc(0 - ${width ? width : '0'}px)`);
+
+  console.log(width, panelIsOpen, window.screen.width)
+
   return (
     <div
       className={`fixed bottom-0 z-30 my-4 justify-center items-center 
-    sm:max-w-[calc(48rem-1.5rem-1.5rem)] 
-    md:max-w-[calc(48rem-2rem-2rem)]
-    lg:max-w-[calc(48rem-2.5rem-2.5rem)]
-    -sm:w-full md:w-fit
-    w-[calc(100%-4rem)] lg:w-full
-    mx-0
-    `}
+      max-w-[100vw]
+      w-[100vw]
+      mx-0
+      left-0
+      max-[768px]:!pl-0
+    `}//need to change left-0 so that it reacts when the sidebar is open (left-sidebar/2)
+    //important needed to override style on screens (cant have media queries in style)
+    style={{
+      paddingLeft: `${panelIsOpen ? `${width/2}` : '0'}px`
+    }}
     >
       <div className="flex justify-center items-center ">
         <Menubar.Root className="border overflow-hidden inline-flex flex-shrink-0 bg-white rounded-full shadow-lg">
