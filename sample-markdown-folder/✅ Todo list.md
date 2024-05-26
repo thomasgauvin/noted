@@ -82,24 +82,49 @@
     
 *   Add new folder/new file to tree viewer ✅
     
-*   Make it so that you can start editing and save later (maybe make it a zip on unsupported devices)
+*   Make the UI have resizable side bar ✅
     
-*   Make it mobile UI responsive <-- 🟡⬅️
+*   Fix styling to have less spacing between sections, paragraphs, overall polish (make it look like Brian Lovin) ✅
     
-*   After entering the title, click enter, and then it deselects, kinda annoying (upon note creation)
+*   Make it mobile UI responsive (useless since not supported on mobile) ⏸️
+    
+*   Make it so that you can start editing and save later (maybe make it a zip on unsupported devices (no, just don't support unsupported devices))
+    
+*   Reduce the spacing between lines (way too much spacing!) ✅
+    
+*   Make the side bar resizable ✅
+    
+*   Reorder pages with [https://atlaskit.atlassian.com/packages/confluence/tree](https://atlaskit.atlassian.com/packages/confluence/tree) or [https://ant.design/components/tree#components-tree-demo-draggable](https://ant.design/components/tree#components-tree-demo-draggable)
+    
+*   Fix UI (padding, margin, main content) ✅
+    
+*   Click is imperfect on open sidebar ✅
+    
+*   Sometimes content spills over ✅
+    
+*   Fix centering of toolbar ✅
+    
+*   Show browser support (check out [https://github.com/use-strict/file-system-access/tree/master](https://github.com/use-strict/file-system-access/tree/master) (didn't work and mobile experience is poor))
+    
+*   Allow the ability to have multiple notes open at once ⏸️
+    
+*   \--> SHIP
     
 
 ### P1
 
-*   Have the UI have top level folders as sections
-    
 *   Support ignoring frontmatter ✅
     
-*   Add support for Google Drive, GitHub syncing
-    
-*   Autocomplete with Bring your own OpenAI key (or Ollama integration)
+*   Add styling customizability
     
 *   Export to website (static site generation)
+    
+
+### P2
+
+*   Add Google Drive
+    
+*   Support ignoring frontmatter ✅
     
 *   add support to add links within the project ⏸️
     
@@ -107,9 +132,13 @@
     
 *   add lots of CSS transitions ⏸️
     
-*   Make the UI have resizable side bar
+*   Have the UI have top level folders as sections
+    
+*   Custom links
     
 
-### P2
+### P3
 
 *   Add electron app for desktop, no notifications, and support for browsers that don't work
+    
+*   Autocomplete with Bring your own OpenAI key (or Ollama integration)

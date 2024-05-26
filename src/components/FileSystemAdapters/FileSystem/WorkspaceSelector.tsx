@@ -69,7 +69,7 @@ export function WorkspaceSelector({
                 </p>
               </div>
             </div>
-            <div className="mt-4">
+            <div className="my-4">
               {isSupported ? (
                 <div className="my-2">
                   <Button

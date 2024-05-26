@@ -36,6 +36,7 @@ export const EditorPage: React.FC = () => {
       <ResizableSidebar
         minWidth={minWidth}
         maxWidth={maxWidth}
+        width={width}
         setWidth={setWidth}
         hidden={!panelIsOpen || !selectedDirectory}
         style={{ maxWidth: `${width}px` }}

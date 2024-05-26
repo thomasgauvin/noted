@@ -1,9 +1,10 @@
 import React, { useRef, useEffect } from "react";
 
-const MyComponent = ({
+const ResizableSidebar = ({
   children,
   minWidth,
   maxWidth,
+  width,
   setWidth,
   hidden,
   style
@@ -11,6 +12,7 @@ const MyComponent = ({
   children: React.ReactNode,
   minWidth: number,
   maxWidth: number,
+  width: number,
   setWidth: (fn: any) => void,
   hidden?: boolean,
   style?: React.CSSProperties
@@ -41,7 +43,7 @@ const MyComponent = ({
 
   return (
     <div
-      className={`md:static grow-0 fixed z-40 h-full flex flex-1 ${
+      className={`md:static fixed z-40 h-full flex flex-1 ${
         hidden ? "hidden" : ""
       }`}
       style={style}
@@ -50,7 +52,6 @@ const MyComponent = ({
       <div
         //draggable divider
         onMouseDown={() => {
-          console.log("mousedown")
           isResized.current = true;
         }}
         className="w-0 pl-[3px] bg-zinc-50 cursor-col-resize "
@@ -59,4 +60,4 @@ const MyComponent = ({
   );
 };
 
-export default MyComponent;
+export default ResizableSidebar;

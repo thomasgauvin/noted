@@ -30,10 +30,6 @@ export const RemirrorCustomToolbar = ({}: {}) => {
 
   const { width, panelIsOpen } = useContext(SidebarContext);
 
-  console.log(`calc(0 - ${width ? width : '0'}px)`);
-
-  console.log(width, panelIsOpen, window.screen.width)
-
   return (
     <div
       className={`fixed bottom-0 z-30 my-4 justify-center items-center 
@@ -41,11 +37,12 @@ export const RemirrorCustomToolbar = ({}: {}) => {
       w-[100vw]
       mx-0
       left-0
-      max-[768px]:!pl-0
+      md:pl-[300px]
+      -md:!pl-0
     `}//need to change left-0 so that it reacts when the sidebar is open (left-sidebar/2)
     //important needed to override style on screens (cant have media queries in style)
     style={{
-      paddingLeft: `${panelIsOpen ? `${width/2}` : '0'}px`
+      paddingLeft: `${panelIsOpen ? `${width}` : '0'}px`
     }}
     >
       <div className="flex justify-center items-center ">

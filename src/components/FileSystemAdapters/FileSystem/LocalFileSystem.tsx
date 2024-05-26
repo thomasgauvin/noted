@@ -186,7 +186,7 @@ export const LocalFileSystem = ({
       className={`bg-zinc-50 overflow-y-scroll ${
         hidden ? "hidden" : ""
       }
-        h-full scrollbar scrollbar-thumb-zinc-200 scrollbar-track-zinc-100 scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full 
+        w-full h-full scrollbar scrollbar-thumb-zinc-200 scrollbar-track-zinc-100 scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full 
       `}
     >
       {selectedDirectory && (
