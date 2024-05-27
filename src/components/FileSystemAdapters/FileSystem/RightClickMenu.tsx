@@ -19,7 +19,7 @@ const RightClickMenu = ({ onCreateFile, onCreateFolder, onDelete, onRename }:
         {
           onCreateFile && (
             <ContextMenu.Item
-              className={`text-sm leading-none rounded-md 
+              className={`text-sm leading-none rounded-md cursor-pointer
                 flex items-center h-[25px] px-[5px] relative select-none outline-none 
                 data-[disabled]:pointer-events-none 
                 data-[highlighted]:bg-zinc-100`}
@@ -35,7 +35,7 @@ const RightClickMenu = ({ onCreateFile, onCreateFolder, onDelete, onRename }:
         {
           onCreateFolder && (
             <ContextMenu.Item
-              className={`text-sm leading-none rounded-md 
+              className={`text-sm leading-none rounded-md cursor-pointer
                 flex items-center h-[25px] px-[5px] relative select-none outline-none 
                 data-[disabled]:pointer-events-none 
                 data-[highlighted]:bg-zinc-100`}
@@ -49,9 +49,10 @@ const RightClickMenu = ({ onCreateFile, onCreateFolder, onDelete, onRename }:
           )
         }
         <ContextMenu.Item
-          className={`text-sm leading-none rounded-md 
+          className={`text-sm leading-none rounded-md cursor-pointer
             flex items-center h-[25px] px-[5px] relative select-none outline-none 
             data-[disabled]:pointer-events-none 
+            cursor-pointer
             data-[highlighted]:bg-zinc-100`}
           onClick={() => {
             onRename();
@@ -61,7 +62,7 @@ const RightClickMenu = ({ onCreateFile, onCreateFolder, onDelete, onRename }:
           <div>Rename</div>
         </ContextMenu.Item>
         <ContextMenu.Item
-          className={`text-sm leading-none rounded-md 
+          className={`text-sm leading-none rounded-md cursor-pointer
             flex items-center h-[25px] px-[5px] relative select-none outline-none 
             data-[disabled]:pointer-events-none 
             data-[highlighted]:bg-zinc-100`}

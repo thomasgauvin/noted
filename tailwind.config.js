@@ -14,6 +14,10 @@ export default {
           },
         },
       },
+      colors: {
+        primary: "#52525b",
+        secondary: "#a1a1aa",
+      },
     },
   },
   plugins: [

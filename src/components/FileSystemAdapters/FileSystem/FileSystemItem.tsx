@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import DirectoryNode from "../../../models/DirectoryNode";
 import { ChevronDown, ChevronRight, FilePlus, FolderPlus } from "lucide-react";
 import RightClickMenu from "./RightClickMenu";
@@ -7,6 +7,9 @@ import * as ContextMenu from "@radix-ui/react-context-menu";
 export function FileSystemItem({
   node,
   depth,
+  forceRerenderCounter,
+  setForceRerenderCounter,
+  setSelectedFile,
   handleFileSelect,
   currentlySelectedFile,
   handleDeleteFile,
@@ -14,9 +17,13 @@ export function FileSystemItem({
   handleCreateFolder,
   handleRenameFolder,
   handleRenameFile,
+  draggable
 }: {
   node: DirectoryNode;
   depth: number;
+  forceRerenderCounter: number;
+  setForceRerenderCounter: (counter: number) => void;
+  setSelectedFile: (file: DirectoryNode | null) => void;
   handleFileSelect: (file: DirectoryNode) => void;
   currentlySelectedFile: DirectoryNode | undefined;
   handleDeleteFile: (node: DirectoryNode) => void;
@@ -24,11 +31,84 @@ export function FileSystemItem({
   handleCreateFolder: (node: DirectoryNode) => void;
   handleRenameFolder: (node: DirectoryNode) => void;
   handleRenameFile: (node: DirectoryNode) => void;
+  draggable: boolean
 }) {
   const [expanded, setExpanded] = useState(depth === 0);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const dragEnterCount = useRef(0);
+
+  const handleOnDragStart = (e: React.DragEvent<HTMLDivElement>, node: DirectoryNode) => {
+    e.dataTransfer.setData("node_id", node.getId());
+    console.log(e.dataTransfer.getData("node_id"));
+    e.stopPropagation();
+  };
+
+  const handleOnDragDrop = (e: React.DragEvent<HTMLDivElement>, newParent: DirectoryNode) => {
+    console.log(e.dataTransfer.getData("node_id"));
+    console.log('dropping');
+    console.log(newParent);
+
+    const droppedNodeId = e.dataTransfer.getData("node_id");
+
+
+    //get root node
+    const rootNode = node.getRootNode();
+    //get dropped node by id from rootNode
+    const droppedNode = rootNode.getNodeById(droppedNodeId);
+
+    try{
+      droppedNode?.moveNodeToNewParent(newParent);
+      setForceRerenderCounter(forceRerenderCounter + 1);
+      console.log("forced rerender");
+    }
+    catch(e){
+      console.log(e);
+      alert("Could not move file due to conflicting file names in destination.")
+    }
+
+    setIsDragOver(false);
+    dragEnterCount.current = 0;
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleOnDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const handleOnDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    setIsDragOver(true);
+
+    dragEnterCount.current += 1;
+
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleOnDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+
+    dragEnterCount.current -= 1;
+
+    if (dragEnterCount.current <= 0) {
+      setIsDragOver(false);
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
   return (
-    <div key={node.getName()} className="select-none">
+    <div
+    key={node.getName()}
+      className="select-none outline-zinc-400 rounded outline-dashed outline-0"
+      draggable={draggable}
+      onDragStart={draggable ? (e) => handleOnDragStart(e, node) : undefined}
+      onDrop={(e) => handleOnDragDrop(e, node)}
+      onDragOver={handleOnDragOver}
+      onDragEnter={handleOnDragEnter}
+      onDragLeave={handleOnDragLeave}
+      style={isDragOver? { outlineWidth: "1px" } : {}}
+    >
       {depth === 0 ? null : (
         <div
           className="p-0.5 hover:bg-zinc-200/70 rounded flex items-center 	"
@@ -96,6 +176,8 @@ export function FileSystemItem({
                                           : ""
                                       }
                                       `}
+                        draggable={true}
+                        onDragStart={(e) => handleOnDragStart(e, child)}
                         onClick={() => handleFileSelect(child)}
                       >
                         <div className="pl-1">
@@ -111,6 +193,9 @@ export function FileSystemItem({
                   <FileSystemItem
                     node={child}
                     depth={depth + 1}
+                    forceRerenderCounter={forceRerenderCounter}
+                    setForceRerenderCounter={setForceRerenderCounter}
+                    setSelectedFile={setSelectedFile}
                     handleFileSelect={handleFileSelect}
                     currentlySelectedFile={currentlySelectedFile}
                     handleDeleteFile={handleDeleteFile}
@@ -118,6 +203,7 @@ export function FileSystemItem({
                     handleCreateFolder={handleCreateFolder}
                     handleRenameFolder={handleRenameFolder}
                     handleRenameFile={handleRenameFile}
+                    draggable={true}
                   /> // Recursively render directory
                 )}
               </ContextMenu.Trigger>
@@ -134,9 +220,9 @@ export function FileSystemItem({
                 }
                 onDelete={() => handleDeleteFile(child)}
                 onRename={
-                  child.isDirectory() ? 
-                  () => handleRenameFolder(child) :
-                  () => handleRenameFile(child)
+                  child.isDirectory()
+                    ? () => handleRenameFolder(child)
+                    : () => handleRenameFile(child)
                 }
               />
             </ContextMenu.Root>

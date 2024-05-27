@@ -42,6 +42,57 @@ class DirectoryNode {
     this.sortChildrenAlphabetically();
   }
 
+  async moveNodeToNewParent(newParent: DirectoryNode): void  {
+    if(newParent.getId() === this.parent?.getId()){
+      return;
+    }
+    const oldParent = this.parent;
+    
+
+    //move file or folder
+    if(this.directoryHandle && newParent.directoryHandle){
+      this.renameFolder(this.getName()!, newParent)
+    }
+    else if(this.fileHandle){
+      //@ts-expect-error
+      this.fileHandle.move(newParent.directoryHandle, this.name);
+      this.parent = newParent;
+
+      //insert node into parent children
+      newParent.children.push(this);
+      newParent.sortChildrenAlphabetically();
+
+      //remove node from old parent
+      if (oldParent) {
+        oldParent.children = oldParent.children.filter(
+          (child) => child.getId() !== this.getId()
+        );
+      }
+
+      return;
+    }
+  }
+
+  getNodeById(id: string): DirectoryNode | null {
+    if (this.id === id) {
+      return this;
+    }
+    for (const child of this.children) {
+      const node = child.getNodeById(id);
+      if (node) {
+        return node;
+      }
+    }
+    return null;
+  }
+
+  getRootNode(): DirectoryNode {
+    if (this.parent) {
+      return this.parent.getRootNode();
+    }
+    return this;
+  }
+
   getId(): string {
     return this.id;
   }
@@ -178,66 +229,87 @@ class DirectoryNode {
   }
 
   //create a rename function for folder
-  async renameFolder(newName: string): Promise<void | Error> {
+  async renameFolder(newName: string, newParent?: DirectoryNode | null): Promise<void | Error> {
     const newFolderName = newName;
 
-    if (this.directoryHandle && this.parent && this.parent.directoryHandle) {
+    let operatingParent = newParent || this.parent;
+    let oldParent = this.parent;
+
+    if (
+      (this.directoryHandle &&
+        operatingParent &&
+        operatingParent.directoryHandle)) {
       //search the parent to see if the file with the new name already exists
       let existingFolderHandle;
       try {
         existingFolderHandle =
-          await this.parent.directoryHandle?.getDirectoryHandle(newFolderName, {
-            create: false,
-          });
+          await operatingParent.directoryHandle?.getDirectoryHandle(
+            newFolderName,
+            {
+              create: false,
+            }
+          );
       } catch (error) {
         if (existingFolderHandle) {
-          return new Error("Folder already exists"); //not expected to happen since it doesn't fail when it finds the file
+          throw new Error("Folder already exists"); //not expected to happen since it doesn't fail when it finds the file
         }
       }
 
       if (existingFolderHandle) {
-        return new Error("Folder already exists"); //not expected to happen since it doesn't fail when it finds the file
+        throw new Error("Folder already exists"); //not expected to happen since it doesn't fail when it finds the file
       }
 
       //create new directory for new name
       const newFolderHandle =
-        await this.parent.directoryHandle.getDirectoryHandle(newFolderName, {
-          create: true,
-        });
+        await operatingParent.directoryHandle.getDirectoryHandle(
+          newFolderName,
+          {
+            create: true,
+          }
+        );
 
       await copyDirectory(this.directoryHandle, newFolderHandle);
 
       //update the new folder node with the new name
       const newFolderNode = await createDirectoryNode(
         newFolderHandle,
-        this.parent
+        operatingParent
       );
 
-      const parent = this.parent;
+      if(!newFolderNode){
+        throw new Error("Error creating new folder node");
+      }
 
       //delete the folder
-      await this.parent?.directoryHandle?.removeEntry(
+      await oldParent?.directoryHandle?.removeEntry(
         this.directoryHandle.name,
         {
           recursive: true,
         }
       );
 
-      //update the children of the parent
-      //@ts-expect-error
-      parent.children = parent.children.map((child) => {
-        if (child.name === this.name) {
-          return newFolderNode;
-        } else {
-          return child;
-        }
-      });
+      //update the children of the parent if its a rename
+      //otherwise, delete from the old parent and insert into new parent
+      if(!newParent){
+        operatingParent.children = operatingParent.children.map((child) => {
+          if (child.name === this.name) {
+            return newFolderNode;
+          } else {
+            return child;
+          }
+        });
+      }
+      else if(oldParent){
+        oldParent.children = oldParent.children.filter(
+          (child) => child.name!== this.name
+        );
+        operatingParent.children.push(newFolderNode);
+      }
 
-      this.parent.sortChildrenAlphabetically();
+      operatingParent.sortChildrenAlphabetically();
 
-
-      console.log("renamed file, updated children", this.parent.children);
-      console.log(this.parent.children);
+      console.log("renamed file, updated children", operatingParent.children);
+      console.log(operatingParent.children);
     }
   }
 

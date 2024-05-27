@@ -43,7 +43,7 @@ const ResizableSidebar = ({
 
   return (
     <div
-      className={`md:static fixed z-40 h-full flex flex-1 ${
+      className={`md:static fixed z-40 h-full flex flex-1 min-w-[250px] ${
         hidden ? "hidden" : ""
       }`}
       style={style}

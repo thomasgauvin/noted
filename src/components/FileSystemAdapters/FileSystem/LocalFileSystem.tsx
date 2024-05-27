@@ -2,12 +2,14 @@
 // and pass them down to the Folder component. The Folder component is then responsible for rendering
 // and calling them
 
-import { useEffect } from "react";
+import { useEffect, useReducer, useState } from "react";
 import DirectoryNode, {
   createDirectoryNode,
 } from "../../../models/DirectoryNode";
 import { FileSystemItem } from "./FileSystemItem";
-import { FilePlus, FolderPlus, X } from "lucide-react";
+import { FilePlus, FolderPlus, LucideFile, LucideFilePlus, LucideFolderPlus, X } from "lucide-react";
+import { set } from "remirror";
+import { Button } from "../../ui/Button";
 
 //sample react function
 export const LocalFileSystem = ({
@@ -27,6 +29,9 @@ export const LocalFileSystem = ({
   setPanelIsOpen: (isOpen: boolean) => void;
   panelIsOpen: boolean;
 }) => {
+
+  const [forceRerenderCounter, setForceRerenderCounter] = useState(0);
+
   useEffect(() => {
     const fetchEntries = async () => {
       if (selectedDirectory?.directoryHandle) {
@@ -80,6 +85,8 @@ export const LocalFileSystem = ({
     } else {
       setSelectedFile(null);
     }
+
+    setForceRerenderCounter(forceRerenderCounter + 1);
   };
 
   const createFileHandlingDuplicates = async (parent: DirectoryNode) => {
@@ -98,6 +105,8 @@ export const LocalFileSystem = ({
       }
     }
 
+    setForceRerenderCounter(forceRerenderCounter + 1);
+
     throw new Error("Could not create file");
   };
 
@@ -112,6 +121,8 @@ export const LocalFileSystem = ({
         "Error creating file, too many conflicts when trying to create the file."
       );
     }
+
+    setForceRerenderCounter(forceRerenderCounter + 1);
   };
 
   const createFolderHandlingDuplicates = async (parent: DirectoryNode) => {
@@ -128,6 +139,8 @@ export const LocalFileSystem = ({
         counter++;
       }
     }
+
+    setForceRerenderCounter(forceRerenderCounter + 1);
 
     throw new Error("Could not create folder");
   };
@@ -148,6 +161,7 @@ export const LocalFileSystem = ({
     if (newName) {
       await node.renameFolder(newName);
       setSelectedFile(selectedFile?.getCopy() || null);
+      setForceRerenderCounter(forceRerenderCounter + 1);
     }
   };
 
@@ -159,6 +173,7 @@ export const LocalFileSystem = ({
     if (newName) {
       await node.renameFile(newName);
       setSelectedFile(selectedFile?.getCopy() || null);
+      setForceRerenderCounter(forceRerenderCounter + 1);
     }
   };
 
@@ -183,9 +198,7 @@ export const LocalFileSystem = ({
 
   return (
     <div
-      className={`bg-zinc-50 overflow-y-scroll ${
-        hidden ? "hidden" : ""
-      }
+      className={`bg-zinc-50 overflow-y-scroll ${hidden ? "hidden" : ""}
         w-full h-full scrollbar scrollbar-thumb-zinc-200 scrollbar-track-zinc-100 scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full 
       `}
     >
@@ -230,8 +243,14 @@ export const LocalFileSystem = ({
           </div>
           <div className="font-normal p-1">
             <FileSystemItem
+              key={forceRerenderCounter} //react does a shallow compare on an object to determine if it needs to rerender. since we are updating the object directly when
+              //updating name/moving files, etc. and we don't want to create copies of the root selected directory unnecessarily (causes rerenders of file, remirror editor, etc.)
+              //we are incrementing a counter that we can use to force the rerender of this. by setting it as the key to the filesystemitem, we can force the update for this
               node={selectedDirectory}
               depth={0}
+              forceRerenderCounter={forceRerenderCounter}
+              setForceRerenderCounter={setForceRerenderCounter}
+              setSelectedFile={setSelectedFile}
               handleFileSelect={handleFileSelect}
               currentlySelectedFile={selectedFile}
               handleDeleteFile={handleDeleteFile}
@@ -239,6 +258,7 @@ export const LocalFileSystem = ({
               handleCreateFolder={handleCreateFolder}
               handleRenameFolder={handleRenameFolder}
               handleRenameFile={handleRenameFile}
+              draggable={false}
             />
           </div>
         </div>
