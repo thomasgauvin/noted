@@ -38,7 +38,7 @@ export function FileSystemItem({
   const dragEnterCount = useRef(0);
 
   const handleOnDragStart = (e: React.DragEvent<HTMLDivElement>, node: DirectoryNode) => {
-    e.dataTransfer.setData("node_id", node.getId());
+    e.dataTransfer.setData("node_id", node.id);
     console.log(e.dataTransfer.getData("node_id"));
     e.stopPropagation();
   };
@@ -160,7 +160,7 @@ export function FileSystemItem({
           <div key={child.getName()}>
             <ContextMenu.Root>
               <ContextMenu.Trigger className="ContextMenuTrigger">
-                {!child.isDirectory() ? ( // Render file or folder depending on amount of children
+                {!child.isDirectory ? ( // Render file or folder depending on amount of children
                   <>
                     {child.isMarkdown && child.isMarkdown() ? ( //hide the images
                       <div //background color changes when file is hovered over
@@ -209,18 +209,18 @@ export function FileSystemItem({
               </ContextMenu.Trigger>
               <RightClickMenu
                 onCreateFile={
-                  child.isDirectory()
+                  child.isDirectory
                     ? () => handleCreateFile(child)
                     : undefined
                 }
                 onCreateFolder={
-                  child.isDirectory()
+                  child.isDirectory
                     ? () => handleCreateFolder(child)
                     : undefined
                 }
                 onDelete={() => handleDeleteFile(child)}
                 onRename={
-                  child.isDirectory()
+                  child.isDirectory
                     ? () => handleRenameFolder(child)
                     : () => handleRenameFile(child)
                 }

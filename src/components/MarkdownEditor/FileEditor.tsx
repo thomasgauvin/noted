@@ -19,7 +19,7 @@ export const FileEditor = ({
   const debouncedChangeFileName = useDebouncedCallback(
     async ({ value }) => {
       console.log('debounced callback')
-      await selectedFile?.renameFile(value);
+      await selectedFile?.rename(value);
       setSelectedFile(selectedFile?.getCopy()); //force a rerender of the file system
     },
     700

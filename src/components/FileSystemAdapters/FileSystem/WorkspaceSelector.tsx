@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import DirectoryNode, { createDirectoryNode } from "../../../models/DirectoryNode";
 import { Button } from "../../ui/Button";
 import * as Separator from '@radix-ui/react-separator';
+import { LocalFileSystemProvider } from "../../../models/StorageProviders/LocalFileSystemProvider";
 
 export function WorkspaceSelector({
     setSelectedDirectory
@@ -14,11 +15,21 @@ export function WorkspaceSelector({
         try {
           //@ts-expect-error
           const directoryHandle = await window.showDirectoryPicker();
-          if(!directoryHandle) return;
+          if(directoryHandle === null) return;
 
-          setSelectedDirectory(
-            await createDirectoryNode(directoryHandle, undefined)
+          let storageProvider = new LocalFileSystemProvider(directoryHandle);
+
+          const directoryNode = await createDirectoryNode(
+            storageProvider,
+            undefined
           );
+
+          if(!directoryNode) {
+            console.error("Error creating directory node");
+            return;
+          };
+          setSelectedDirectory(directoryNode);
+
         } catch (error) {
           console.error("Error selecting directory:", error);
         }
@@ -28,8 +39,8 @@ export function WorkspaceSelector({
       const emptyBrowserDirectory = new DirectoryNode(
         "Notes",
         undefined,
-        undefined,
-        undefined,
+        [],
+        true,
         undefined,
         undefined,
         undefined,
@@ -41,7 +52,8 @@ export function WorkspaceSelector({
     }
 
     useEffect(() => {
-        setIsSupported(typeof showDirectoryPicker === 'function');
+      //@ts-expect-error
+      setIsSupported(typeof showDirectoryPicker === 'function');
     }, []);
 
     return (

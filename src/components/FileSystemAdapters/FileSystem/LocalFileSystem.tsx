@@ -10,6 +10,7 @@ import { FileSystemItem } from "./FileSystemItem";
 import { FilePlus, FolderPlus, LucideFile, LucideFilePlus, LucideFolderPlus, X } from "lucide-react";
 import { set } from "remirror";
 import { Button } from "../../ui/Button";
+import { LocalFileSystemProvider } from "../../../models/StorageProviders/LocalFileSystemProvider";
 
 //sample react function
 export const LocalFileSystem = ({
@@ -49,7 +50,11 @@ export const LocalFileSystem = ({
   const getDirectoryRecursive = async (
     directoryHandle: FileSystemDirectoryHandle
   ) => {
-    const rootDirectoryNode = await createDirectoryNode(directoryHandle);
+    const storageProvider = new LocalFileSystemProvider(directoryHandle);
+    const rootDirectoryNode = await createDirectoryNode(
+      storageProvider,
+      undefined
+    );
     if (rootDirectoryNode) {
       return rootDirectoryNode;
     } else {
@@ -183,7 +188,7 @@ export const LocalFileSystem = ({
     if (!node) return node;
     if (node.children.length > 0) {
       for (const child of node.children) {
-        if (!child.isDirectory()) {
+        if (!child.isDirectory) {
           return child;
         }
       }

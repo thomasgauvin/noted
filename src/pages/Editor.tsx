@@ -89,7 +89,7 @@ export const EditorPage: React.FC = () => {
                     : ""
                 }
                 ${
-                  !selectedFile || (selectedFile && selectedFile.isDirectory())
+                  !selectedFile || (selectedFile && selectedFile.isDirectory)
                     ? " pattern-boxes pattern-gray-400 pattern-bg-white pattern-opacity-5 pattern-size-4"
                     : ""
                 }
