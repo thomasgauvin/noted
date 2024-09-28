@@ -15,8 +15,6 @@ export default class DirectoryNode {
   isDirectory: boolean; // Indicator for directory node
 
   storageProviderHandle?: StorageProvider; //the storage provider object for the specific file/directory in question
-  fileHandle?: FileSystemFileHandle;
-  directoryHandle?: FileSystemDirectoryHandle;
   parent?: DirectoryNode;
   blobUrl?: string;
   replacedImages: { [key: string]: string } = {};
@@ -29,8 +27,6 @@ export default class DirectoryNode {
     isDirectory: boolean,
 
     storageProviderHandle?: StorageProvider,
-    fileHandle?: FileSystemFileHandle,
-    directoryHandle?: FileSystemDirectoryHandle,
     parent?: DirectoryNode,
     fileContent?: string,
     unsavedChanges?: boolean,
@@ -45,8 +41,6 @@ export default class DirectoryNode {
     this.isDirectory = isDirectory;
 
     this.storageProviderHandle = storageProviderHandle;
-    this.fileHandle = fileHandle;
-    this.directoryHandle = directoryHandle;
     this.parent = parent;
     this.fileContent = fileContent || "";
     this.unsavedChanges = unsavedChanges || false;
@@ -54,6 +48,9 @@ export default class DirectoryNode {
     this.blobUrl = blobUrl;
     this.replacedImages = replacedImages || {};
     this.frontmatter = frontmatter || null;
+
+    //if the storage provider handle is undefined, then we must create
+    //a directory/file in the indexdb
 
     this.sortChildrenAlphabetically();
   }
@@ -95,8 +92,6 @@ export default class DirectoryNode {
     return (
       removeMdExtension(this.name) ||
       removeMdExtension(this.storageProviderHandle?.getHandler().name) ||
-      removeMdExtension(this.fileHandle?.name) ||
-      removeMdExtension(this.directoryHandle?.name) ||
       this.name ||
       null
     );
@@ -127,8 +122,6 @@ export default class DirectoryNode {
       this.children,
       this.isDirectory,
       this.storageProviderHandle,
-      this.fileHandle,
-      this.directoryHandle,
       this.parent,
       this.fileContent,
       this.unsavedChanges,
