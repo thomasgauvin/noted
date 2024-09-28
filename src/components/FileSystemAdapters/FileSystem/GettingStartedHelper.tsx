@@ -54,23 +54,23 @@ export function GettingStartedHelper({
                 </Button>
               </div>
 
-                  <div className="">
-                    <Button
-                      variant={"link"}
-                      className="rounded w-full font-normal "
-                    >
-                      Select a location to save your notes
-                    </Button>
-                  </div>
-                  <div className="">
-                    <Button
-                      variant={"link"}
-                      className="rounded w-full font-normal"
-                      onClick={handleDirectorySelect}
-                    >
-                      Open an existing folder
-                    </Button>
-                  </div>
+              <div className="">
+                <Button
+                  variant={"link"}
+                  className="rounded w-full font-normal "
+                >
+                  Select a location to save your notes
+                </Button>
+              </div>
+              <div className="">
+                <Button
+                  variant={"link"}
+                  className="rounded w-full font-normal"
+                  onClick={handleDirectorySelect}
+                >
+                  Open an existing folder
+                </Button>
+              </div>
             </div>
           </div>
         </div>

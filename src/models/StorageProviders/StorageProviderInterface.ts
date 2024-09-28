@@ -1,13 +1,15 @@
 export interface StorageProvider {
-  storageType: StorageType;
-
   isDirectory(): boolean;
   isFile(): boolean;
 
-  getFileContent(): Promise<string>;
+  getHandler(): FileSystemFileHandle | FileSystemDirectoryHandle;
+
+  getFileTextContent(): Promise<string>;
+  getFileArrayBuffer(): Promise<ArrayBuffer>;
   saveFileContent(content: string): Promise<void>;
-  rename(
+  rename(//some of these functions require the old parent. the storage provider implementer will determine what to do with the old paarent
     newName: string,
+    oldParent: StorageProvider | null,
     newParent?: StorageProvider | null
   ): Promise<StorageProvider>;
   deleteChild(child: StorageProvider): Promise<void>;
@@ -15,11 +17,10 @@ export interface StorageProvider {
   values(): Promise<StorageProvider[]>;
   isImage(): Promise<boolean>;
   loadImageInBrowser(): Promise<string>;
-  copyTo(target: StorageProvider): Promise<void>;
+  copyTo(target: StorageProvider): Promise<StorageProvider>;
   createDirectory(path: string): Promise<StorageProvider>;
   createFile(storageProvider: StorageProvider): Promise<StorageProvider>;
   createFileFromPath(path: string): Promise<StorageProvider>;
-  delete(): Promise<void>;
 
   readFile(path: string): Promise<string>;
   writeFile(path: string, content: string): Promise<void>;
@@ -28,14 +29,8 @@ export interface StorageProvider {
 }
 
 export function instanceOfStorageProvider(object: any): object is StorageProvider {
-  return "storageType" in object && "isDirectory" in object && "getFileContent" in object && "saveFileContent" in object && 
+  return "isDirectory" in object && "getFileTextContent" in object && "saveFileContent" in object && 
     "rename" in object && "deleteChild" in object && "name" in object && "values" in object && "isImage" in object && 
     "loadImageInBrowser" in object && "readFile" in object && "writeFile" in object && "createDirectory" in object && 
     "deleteFile" in object && "deleteDirectory" in object;
-}
-
-//enum for storage type file or directory
-export enum StorageType {
-  FILE = "file",
-  DIRECTORY = "directory",
 }

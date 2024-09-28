@@ -2,6 +2,7 @@ import { addMdExtension, removeMdExtension, extractFrontmatter } from "./Markdow
 import { LocalFileSystemProvider } from "./StorageProviders/LocalFileSystemProvider";
 import { StorageProvider, instanceOfStorageProvider } from "./StorageProviders/StorageProviderInterface";
 
+//a DirectoryNode is the representation of a file or a directory, held in memory
 export default class DirectoryNode {
   id: string;
   name: string;
@@ -57,6 +58,10 @@ export default class DirectoryNode {
     this.sortChildrenAlphabetically();
   }
 
+  getChildren(): DirectoryNode[] {
+    return this.children;
+  }
+
   isFile(): boolean {
     return !this.isDirectory;
   }
@@ -88,11 +93,22 @@ export default class DirectoryNode {
 
   getName(): string | null {
     return (
+      removeMdExtension(this.name) ||
+      removeMdExtension(this.storageProviderHandle?.getHandler().name) ||
       removeMdExtension(this.fileHandle?.name) ||
       removeMdExtension(this.directoryHandle?.name) ||
       this.name ||
       null
     );
+  }
+
+  setName(name: string): void {
+    if(this.isFile()) {
+      this.name = addMdExtension(name) || this.name;
+      return;
+    }
+
+    this.name = name; //directory does not have .md extension
   }
 
   getFullPath(): string {
@@ -138,7 +154,7 @@ export default class DirectoryNode {
     if (!this.fileContent) {
       if (this.storageProviderHandle) {
         try {
-          const fileContent = await this.storageProviderHandle.getFileContent();
+          const fileContent = await this.storageProviderHandle.getFileTextContent();
           const updatedMarkdownContent =
             this.replaceRelativeLinksWithBlobURLs(fileContent);
 
@@ -164,7 +180,15 @@ export default class DirectoryNode {
   }
 
   updateFileContent(content: string): DirectoryNode {
-    this.fileContent = content;
+
+    const fileContentWithReplacedImages =
+      this.replaceBlobURLsWithRelativeLinks(content);
+
+    const fileContentWithFrontmatter = this.frontmatter
+      ? `---\n${this.frontmatter}\n---\n${fileContentWithReplacedImages}`
+      : fileContentWithReplacedImages;
+
+    this.fileContent = fileContentWithFrontmatter;
     this.unsavedChanges = true; // Set the indicator for unsaved changes
 
     // Update the children of the parent if it exists
@@ -181,34 +205,21 @@ export default class DirectoryNode {
     return this;
   }
 
-  async saveFileContent(): Promise<void> {
+  async saveFileContent(): Promise<DirectoryNode> {
+
+    const fileContentWithReplacedImages = this.replaceBlobURLsWithRelativeLinks(this.fileContent);
+
+    const fileContentWithFrontmatter = this.frontmatter
+      ? `---\n${this.frontmatter}\n---\n${fileContentWithReplacedImages}`
+      : fileContentWithReplacedImages;
+
     if (this.storageProviderHandle && this.isFile()) {
-      const fileContentWithReplacedImages =
-        this.replaceBlobURLsWithRelativeLinks(this.fileContent);
-
-      const fileContentWithFrontmatter = this.frontmatter
-        ? `---\n${this.frontmatter}\n---\n${fileContentWithReplacedImages}`
-        : fileContentWithReplacedImages;
-
       await this.storageProviderHandle.saveFileContent(
         fileContentWithFrontmatter
       );
     }
 
-    // if (this.fileHandle) {
-    //   const writable = await this.fileHandle.createWritable();
-
-    //   //TODO: change this to use the updated markdown content
-    //   const fileContentWithReplacedImages =
-    //     this.replaceBlobURLsWithRelativeLinks(this.fileContent);
-
-    //   const fileContentWithFrontmatter = this.frontmatter
-    //     ? `---\n${this.frontmatter}\n---\n${fileContentWithReplacedImages}`
-    //     : fileContentWithReplacedImages;
-
-    //   await writable.write(fileContentWithFrontmatter || "");
-    //   await writable.close();
-    // }
+    this.fileContent = fileContentWithFrontmatter;
 
     this.unsavedChanges = false; // Reset the indicator for unsaved changes
 
@@ -222,75 +233,118 @@ export default class DirectoryNode {
         }
       });
     }
+
+    //recursively update the parent until the root
+    let currentParent = this.parent;
+    while(currentParent){
+      currentParent.parent?.children.map((child) => {
+        //@ts-ignore
+        if (child.id === currentParent.id) {
+          return currentParent;
+        } else {
+          return child;
+        }
+      });
+      currentParent = currentParent.parent;
+    }
+
+    return this;
   }
 
-  async moveNodeToNewParent(newParent: DirectoryNode): Promise<void> {
+
+
+  //move is done by copying and deleting old node
+  async moveNodeToNewParent(newParent: DirectoryNode): Promise<DirectoryNode | undefined> {
     //come back to this one
     if (newParent.id === this.parent?.id) {
       return;
     }
-    const oldParent = this.parent;
 
-    //move file or folder
-    if (this.directoryHandle && newParent.directoryHandle) {
-      this.rename(this.getName()!, newParent);
-    } else if (this.fileHandle) {
-      //@ts-expect-error
-      this.fileHandle.move(newParent.directoryHandle, this.name);
-      this.parent = newParent;
-
-      //insert node into parent children
-      newParent.children.push(this);
-      newParent.sortChildrenAlphabetically();
-
-      //remove node from old parent
-      if (oldParent) {
-        oldParent.children = oldParent.children.filter(
-          (child) => child.id !== this.id
-        );
-      }
-
-      return;
+    if (!newParent.isDirectory) {
+      throw new Error("New parent is not a directory");
     }
+
+    const oldParent = this.parent;
+    let newNode;
+
+    //move all replaced childs/images of this node to new parent
+    if (this.replacedImages) {
+      for (const key in this.replacedImages) {
+        const oldReplacedImagePath = this.replacedImages[key];
+        const newReplacedImage =
+          this.parent?.findChildByPath(oldReplacedImagePath);
+
+        if (newReplacedImage) {
+          await newReplacedImage.moveNodeToNewParent(newParent);
+        }
+      }
+    }
+
+    if (this.storageProviderHandle && newParent.storageProviderHandle) {
+      const newStorageProviderHandle = await this.storageProviderHandle?.copyTo(
+        newParent.storageProviderHandle
+      );
+      newNode = await createDirectoryNode(newStorageProviderHandle, newParent);
+      newParent.loadDirectoryNode(); //reload the new parent, with images
+    } else {
+      //if we don't have a storage provider
+      newNode = this.getCopy();
+      newNode.parent = newParent;
+      newParent.children.push(newNode);
+    }
+
+    this.delete(true);
+
+    //remove node from old parent
+    if (oldParent) {
+      oldParent.children = oldParent.children.filter(
+        (child) => child.id !== this.id
+      );
+    }
+
+    //reset children
+    if (newParent) {
+      await newParent.loadDirectoryNode();
+    }
+
+    newParent.sortChildrenAlphabetically();
+
+    return newNode!;
   }
 
   async rename(
     newName: string,
     newParent?: DirectoryNode
-  ): Promise<void | Error> {
+  ): Promise<DirectoryNode> {
     const newFileName = newName;
-    const oldParent = this.parent;
 
-    if(!newParent){
-      newParent = this.parent;
-    }
+    let destinationParent = newParent ? newParent : this.parent;
 
+    //create the file using the storage provider
     let newStorageHandle: StorageProvider | null = null;
     if (this.storageProviderHandle) {
+      const oldParentStorageProvider = this.parent && this.parent.storageProviderHandle ? this.parent.storageProviderHandle : null;
       newStorageHandle = await this.storageProviderHandle.rename(
         newFileName,
-        newParent?.storageProviderHandle
+        oldParentStorageProvider,
+        newParent ? newParent.storageProviderHandle : null
       );
     }
 
+    //create the new(renamed) directorynode in memory
     let newDirectoryNode;
     if(newStorageHandle){
       newDirectoryNode = await createDirectoryNode(
         newStorageHandle,
-        newParent
+        destinationParent
       );
     }
     else{
-      const directoryNodeInfo: DirectoryNodeInfo = {
-        name: newFileName,
-        isDirectory: this.isDirectory,
-        children: this.children,
-        parent: newParent || this.parent,
-      };
+      this.setName(newName);
 
       newDirectoryNode = await createDirectoryNode(
-        directoryNodeInfo,
-        newParent
+        this,
+        destinationParent
       );
     }
 
@@ -302,14 +356,14 @@ export default class DirectoryNode {
     await this.delete(true);
 
     //insert newDirectoryNode into parent
-    newParent?.insertChild(newDirectoryNode);
+    destinationParent?.insertChild(newDirectoryNode);
 
-    return;
+    return newDirectoryNode;
   }
 
   replaceBlobURLsWithRelativeLinks = (markdownContent: string) => {
     const regex =
-      /!\[([^\]]*)\]\((.*(\(([^()]*|\(([^()]*|\([^()]*\))*\))*\))*)\s("(?:.*[^"])")?\s*\)/g; // only matches images on their one lines (follow by new line character)
+      /!\[([^\]]*)\]\((.*(\(([^()]*|\(([^()]*|\([^()]*\))*\))*\))*)\s("(?:.*[^"])")?\s*\)/g; // only matches images on their own lines (follow by new line character)
 
     const updatedMarkdownContent = markdownContent.replaceAll(
       regex,
@@ -467,7 +521,7 @@ export default class DirectoryNode {
         return;
       }
     }
-
+    
     if (
       this.storageProviderHandle &&
       this.parent &&
@@ -475,28 +529,6 @@ export default class DirectoryNode {
     ) {
       await this.parent.storageProviderHandle.deleteChild(
         this.storageProviderHandle
-      );
-    }
-
-    //if this is a file, delete it, use removeEntry on the parent
-    if (this.fileHandle) {
-      await this.parent?.directoryHandle?.removeEntry(this.fileHandle.name);
-    }
-
-    //if this is a folder, ask the
-    if (this.directoryHandle) {
-      //delete all the files in the folder
-      try {
-        for (const child of this.children) {
-          await child.delete(true);
-        }
-      } catch (error) {
-        console.log("error deleting child", error); //possible that the file has been moved and can't be deleted
-      }
-
-      //delete the folder
-      await this.parent?.directoryHandle?.removeEntry(
-        this.directoryHandle.name
       );
     }
 
@@ -515,8 +547,17 @@ export default class DirectoryNode {
     return this.parent;
   }
 
-  async createFile(fileName: string): Promise<DirectoryNode | undefined> {
+  async createFile(fileName: string): Promise<DirectoryNode> {
     let storageProviderHandle : StorageProvider | undefined = undefined;
+
+    const existingFile = this.children.find(
+      (child) => child.name === fileName &&!child.isDirectory
+    );
+
+    if (existingFile) {
+      throw new Error(`File ${fileName} already exists`);
+    }
+
     if (this.storageProviderHandle) {
       storageProviderHandle = await this.storageProviderHandle.createFileFromPath(fileName);
     }
@@ -540,6 +581,14 @@ export default class DirectoryNode {
   }
 
   async createFolder(folderName: string): Promise<DirectoryNode | undefined> {
+    let existingFolder = this.children.find(
+      (child) => child.name === folderName && child.isDirectory
+    );
+
+    if (existingFolder) {
+      throw new Error(`Folder ${folderName} already exists`);
+    }
+
     let storageProviderHandle: StorageProvider | undefined = undefined;
     if(this.storageProviderHandle){
       storageProviderHandle = await this.storageProviderHandle.createDirectory(
@@ -570,7 +619,13 @@ export default class DirectoryNode {
   loadDirectoryNode = async (): Promise<DirectoryNode> => {
     const entries: DirectoryNode[] = [];
 
+    //nothing to load if no handle
     if(!this.storageProviderHandle) {
+      return this;
+    }
+
+    //nothing to load if it's a file
+    if(this.storageProviderHandle.getHandler() instanceof FileSystemFileHandle) {
       return this;
     }
 
@@ -615,7 +670,7 @@ export default class DirectoryNode {
 
         let blobUrl = undefined;
         if (await entry.isImage()) {
-          blobUrl = entry.loadImageInBrowser();
+          blobUrl = await entry.loadImageInBrowser();
         }
 
         const fileNode = new DirectoryNode(
@@ -639,35 +694,39 @@ export default class DirectoryNode {
 
     this.children = entries;
     this.sortChildrenAlphabetically();
+
+    console.log(this);
+    console.log(this.children);
+
     return this;
   };
 }
 
-type DirectoryNodeInfo = {
-  name: string;
-  isDirectory: boolean;
-  children: DirectoryNode[];
-  parent?: DirectoryNode;
-}
 
 export async function createDirectoryNode (
-  storageHandle: StorageProvider | DirectoryNodeInfo,
+  storageHandle: StorageProvider | DirectoryNode,
   parent: DirectoryNode | undefined
-): Promise<DirectoryNode | null> {
+): Promise<DirectoryNode | undefined> {
   const entries: DirectoryNode[] = [];
 
   let directoryNode: DirectoryNode;
 
-  if(instanceOfStorageProvider(storageHandle)) {
+  if(!storageHandle){
+    throw new Error("storageHandle is missing.");
+  }
 
-
-    const directoryHandle = (storageHandle as LocalFileSystemProvider).getDirectoryHandle();
-
+  if(!instanceOfStorageProvider(storageHandle) && !(storageHandle instanceof DirectoryNode)){
+    throw new Error("storageHandle is not a valid StorageProvider");
+  }
+  
+  //if we are creating a directory node for a file
+  if(storageHandle instanceof LocalFileSystemProvider){
+    //ignore hidden files & folders
     if (
       storageHandle.name() === "node_modules" ||
       storageHandle.name().startsWith(".")
     ) {
-      return null;
+      return undefined;
     }
 
     directoryNode = new DirectoryNode(
@@ -682,24 +741,27 @@ export async function createDirectoryNode (
     );
 
     directoryNode = await directoryNode.loadDirectoryNode();
-
-
+    return directoryNode;
   }
-  else{//storageHandle is just a 'stub', only info, no file system
-    directoryNode = new DirectoryNode(
-      storageHandle.name,
-      false,
-      storageHandle.children,
-      storageHandle.isDirectory,
-    );
-  }
+
+  const previousDirectoryNode = storageHandle as unknown as DirectoryNode;
+
+  directoryNode = new DirectoryNode(
+    previousDirectoryNode.name,
+    false,
+    previousDirectoryNode.children,
+    previousDirectoryNode.isDirectory,
+    previousDirectoryNode.storageProviderHandle,
+    undefined,
+    undefined,
+    parent,
+    previousDirectoryNode.fileContent,
+    false,
+    undefined,    
+    previousDirectoryNode.blobUrl,
+    previousDirectoryNode.replacedImages,
+    previousDirectoryNode.frontmatter
+  )
 
   return directoryNode;
-}
-
-async function copyDirectory(
-  sourceDirectoryHandle: StorageProvider,
-  targetDirectoryHandle: StorageProvider
-) {
-  sourceDirectoryHandle.copyTo(targetDirectoryHandle);
 }

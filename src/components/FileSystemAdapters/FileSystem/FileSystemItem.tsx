@@ -10,6 +10,7 @@ export function FileSystemItem({
   forceRerenderCounter,
   setForceRerenderCounter,
   setSelectedFile,
+  setSelectedDirectory,
   handleFileSelect,
   currentlySelectedFile,
   handleDeleteFile,
@@ -24,6 +25,7 @@ export function FileSystemItem({
   forceRerenderCounter: number;
   setForceRerenderCounter: (counter: number) => void;
   setSelectedFile: (file: DirectoryNode | null) => void;
+  setSelectedDirectory: (directory: DirectoryNode | null) => void;
   handleFileSelect: (file: DirectoryNode) => void;
   currentlySelectedFile: DirectoryNode | undefined;
   handleDeleteFile: (node: DirectoryNode) => void;
@@ -43,23 +45,31 @@ export function FileSystemItem({
     e.stopPropagation();
   };
 
-  const handleOnDragDrop = (e: React.DragEvent<HTMLDivElement>, newParent: DirectoryNode) => {
+  const handleOnDragDrop = async (e: React.DragEvent<HTMLDivElement>, newParent: DirectoryNode) => {
     console.log(e.dataTransfer.getData("node_id"));
     console.log('dropping');
     console.log(newParent);
 
-    const droppedNodeId = e.dataTransfer.getData("node_id");
+    e.preventDefault();
+    e.stopPropagation();
 
+    const droppedNodeId = e.dataTransfer.getData("node_id");
 
     //get root node
     const rootNode = node.getRootNode();
     //get dropped node by id from rootNode
     const droppedNode = rootNode.getNodeById(droppedNodeId);
 
+    await droppedNode?.loadFileContent();
+
     try{
-      droppedNode?.moveNodeToNewParent(newParent);
-      setForceRerenderCounter(forceRerenderCounter + 1);
+      const newDirectoryNode = await droppedNode?.moveNodeToNewParent(newParent);
+      setSelectedFile(newDirectoryNode || null);
+      setSelectedDirectory(droppedNode?.getRootNode() || null);
+      console.log('new selected directory')
+      console.log(droppedNode?.getRootNode());
       console.log("forced rerender");
+      setForceRerenderCounter(forceRerenderCounter + 1);
     }
     catch(e){
       console.log(e);
@@ -68,8 +78,7 @@ export function FileSystemItem({
 
     setIsDragOver(false);
     dragEnterCount.current = 0;
-    e.preventDefault();
-    e.stopPropagation();
+
   };
 
   const handleOnDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -97,9 +106,11 @@ export function FileSystemItem({
     e.stopPropagation();
   };
 
+  console.log(node);
+
   return (
     <div
-    key={node.getName()}
+      key={node.getName()}
       className="select-none outline-zinc-400 rounded outline-dashed outline-0"
       draggable={draggable}
       onDragStart={draggable ? (e) => handleOnDragStart(e, node) : undefined}
@@ -156,7 +167,7 @@ export function FileSystemItem({
           expanded ? "block" : "hidden"
         }`}
       >
-        {node.children.map((child) => (
+        {node.getChildren().map((child) => (
           <div key={child.getName()}>
             <ContextMenu.Root>
               <ContextMenu.Trigger className="ContextMenuTrigger">
@@ -191,11 +202,13 @@ export function FileSystemItem({
                   </>
                 ) : (
                   <FileSystemItem
+                    key={forceRerenderCounter}
                     node={child}
                     depth={depth + 1}
                     forceRerenderCounter={forceRerenderCounter}
                     setForceRerenderCounter={setForceRerenderCounter}
                     setSelectedFile={setSelectedFile}
+                    setSelectedDirectory={setSelectedDirectory}
                     handleFileSelect={handleFileSelect}
                     currentlySelectedFile={currentlySelectedFile}
                     handleDeleteFile={handleDeleteFile}

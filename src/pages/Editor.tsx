@@ -6,6 +6,7 @@ import { PanelLeftOpen, PanelLeftClose } from "lucide-react";
 import { WorkspaceSelector } from "../components/FileSystemAdapters/FileSystem/WorkspaceSelector";
 import ResizableSidebar from "../components/ui/ResizableSidebar";
 import { GettingStartedHelper } from "../components/FileSystemAdapters/FileSystem/GettingStartedHelper";
+import { set } from "remirror";
 
 export const SidebarContext = createContext({
   width:300,
@@ -16,6 +17,7 @@ export const EditorPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<DirectoryNode | null>(null); // [selectedFile, setSelectedFile
   const [selectedDirectory, setSelectedDirectory] =
     useState<DirectoryNode | null>(null);
+  const [forceRerenderFileSystemCounter, setForceRerenderFileSystemCounter] = useState(0);
 
   //sidebar resizing, also used by main section 
   const [panelIsOpen, setPanelIsOpen] = useState(true);
@@ -23,10 +25,25 @@ export const EditorPage: React.FC = () => {
   const [width, setWidth] = useState(defaultWidth); 
 
   const handleSetSelectedFile = async (node: DirectoryNode | null) => {
+    const rootNode = node?.getRootNode() || selectedDirectory;
+    setSelectedDirectory(rootNode);
     if (!node) return setSelectedFile(null);
     await node.loadFileContent();
     setSelectedFile(node);
+    console.log(node.getRootNode());
+    setForceRerenderFileSystemCounter(forceRerenderFileSystemCounter + 1);
   };
+
+  const handleSetSelectedDirectory = async (node: DirectoryNode | null) => {
+    setSelectedDirectory(node);
+    setForceRerenderFileSystemCounter(forceRerenderFileSystemCounter + 1);
+    console.log('set forced renrendered');
+  };
+
+  const setSelectedDirectoryAndSelectedFile = (selectedDirectory: DirectoryNode, selectedFile: DirectoryNode) => {
+    setSelectedDirectory(selectedDirectory);
+    setSelectedFile(selectedFile);
+  }
 
   return (
     <SidebarContext.Provider
@@ -46,7 +63,7 @@ export const EditorPage: React.FC = () => {
         >
           <LocalFileSystem
             selectedDirectory={selectedDirectory}
-            setSelectedDirectory={setSelectedDirectory}
+            setSelectedDirectory={handleSetSelectedDirectory}
             selectedFile={selectedFile}
             setSelectedFile={handleSetSelectedFile}
             hidden={false}
@@ -55,9 +72,11 @@ export const EditorPage: React.FC = () => {
           />
         </ResizableSidebar>
         {!selectedDirectory && (
-          <WorkspaceSelector 
-            selectedDirectory={selectedDirectory}
-            setSelectedDirectory={setSelectedDirectory} />
+          <WorkspaceSelector
+            setSelectedDirectoryAndSelectedFile={
+              setSelectedDirectoryAndSelectedFile
+            }
+          />
         )}
         <main
           //the below css class and style is needed to have the main section take up the remaining space
@@ -69,13 +88,13 @@ export const EditorPage: React.FC = () => {
           ${panelIsOpen ? `-md:!max-w-full` : ""}
         `}
         >
-          {(!selectedDirectory || !selectedFile) && (
-              <GettingStartedHelper
-                selectedFile={selectedFile}
-                selectedDirectory={selectedDirectory}
-                setSelectedDirectory={setSelectedDirectory}
-              />
-            )}
+          {!selectedDirectory && (
+            <GettingStartedHelper
+              selectedFile={selectedFile}
+              selectedDirectory={selectedDirectory}
+              setSelectedDirectory={setSelectedDirectory}
+            />
+          )}
           <div
             className={`flex-1 flex flex-col md:overflow-y-scroll
                 h-full scrollbar scrollbar-thumb-zinc-200 scrollbar-track-zinc-100 scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full 

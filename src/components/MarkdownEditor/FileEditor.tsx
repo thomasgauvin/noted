@@ -9,8 +9,8 @@ export const FileEditor = ({
   selectedFile,
   setSelectedFile,
 }: {
-  selectedFile: DirectoryNode | undefined;
-  setSelectedFile: (file: DirectoryNode | undefined) => Promise<void> | undefined;
+  selectedFile: DirectoryNode | null;
+  setSelectedFile: (file: DirectoryNode | null) => Promise<void> | undefined;
 }) => {
 
   const [title, setTitle] = useState(selectedFile?.getName() || "Untitled");
@@ -19,8 +19,8 @@ export const FileEditor = ({
   const debouncedChangeFileName = useDebouncedCallback(
     async ({ value }) => {
       console.log('debounced callback')
-      await selectedFile?.rename(value);
-      setSelectedFile(selectedFile?.getCopy()); //force a rerender of the file system
+      const newDirectoryNode = await selectedFile?.rename(value);
+      setSelectedFile(newDirectoryNode || null); //force a rerender of the file system
     },
     700
   );

@@ -23,7 +23,7 @@ export const LocalFileSystem = ({
   panelIsOpen,
 }: {
   selectedDirectory: DirectoryNode | null;
-  setSelectedDirectory: (directory: DirectoryNode | null) => void;
+  setSelectedDirectory: (node: DirectoryNode | null) => Promise<void>;
   selectedFile: DirectoryNode | null;
   setSelectedFile: (node: DirectoryNode | null) => Promise<void>;
   hidden: boolean | null;
@@ -164,7 +164,7 @@ export const LocalFileSystem = ({
   const handleRenameFolder = async (node: DirectoryNode) => {
     const newName = prompt("Enter new name for folder", node.name);
     if (newName) {
-      await node.renameFolder(newName);
+      await node.rename(newName);
       setSelectedFile(selectedFile?.getCopy() || null);
       setForceRerenderCounter(forceRerenderCounter + 1);
     }
@@ -176,8 +176,8 @@ export const LocalFileSystem = ({
       node.getName() || node.name
     );
     if (newName) {
-      await node.renameFile(newName);
-      setSelectedFile(selectedFile?.getCopy() || null);
+      const newDirectoryNode = await node.rename(newName);
+      setSelectedFile(newDirectoryNode || null);
       setForceRerenderCounter(forceRerenderCounter + 1);
     }
   };
@@ -256,6 +256,7 @@ export const LocalFileSystem = ({
               forceRerenderCounter={forceRerenderCounter}
               setForceRerenderCounter={setForceRerenderCounter}
               setSelectedFile={setSelectedFile}
+              setSelectedDirectory={setSelectedDirectory}
               handleFileSelect={handleFileSelect}
               currentlySelectedFile={selectedFile}
               handleDeleteFile={handleDeleteFile}

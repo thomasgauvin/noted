@@ -64,8 +64,8 @@ export const RemirrorComponent = ({
 
   const persistMarkdown = async (markdown: string) => {
     selectedFile?.updateFileContent(markdown);
-    await selectedFile?.saveFileContent();
-    setSelectedFile(selectedFile.getCopy()); //updating state to cause rerender (direct updates to objects/objecttree do not cause rerender)
+    const savedContentFileNode = await selectedFile?.saveFileContent();
+    setSelectedFile(savedContentFileNode.getCopy()); //updating state to cause rerender (direct updates to objects/objecttree do not cause rerender)
   };
 
   const customUploadHandler = (files: FileWithProgress[]): DelayedImage[] => {
@@ -87,24 +87,24 @@ export const RemirrorComponent = ({
           };
 
           // Check if the parent directory handle exists
-          if (selectedFile.parent?.directoryHandle) {
-            const parentDirectoryHandle = selectedFile.parent.directoryHandle;
-
+          if (selectedFile.parent?.storageProviderHandle?.isDirectory()) {
             // Create a new file in the parent directory using the file name
             try {
               console.log(
                 "getting the writeable writing the blob to the file system"
               );
 
-              const newFileHandle = await parentDirectoryHandle.getFileHandle(
-                file.name,
-                {
-                  create: true,
-                }
+              const newFile = await selectedFile.parent.createFile(
+                file.name
               );
 
-              // Write the blob data to the new file
+              const newFileHandle = await newFile.storageProviderHandle?.getHandler();
 
+              if(!newFileHandle || newFileHandle instanceof FileSystemDirectoryHandle) {
+                throw new Error("Unable to get the file handle");
+              }
+
+              // Write the blob data to the new file
               console.log("writing the blob to the file system");
               console.log(blob.size);
               const writeAble = await newFileHandle.createWritable();
