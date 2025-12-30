@@ -51,7 +51,7 @@ export const RemirrorComponent = ({
 }) => {
   const debouncedPersistMarkdown = useDebouncedCallback(
     // function
-    (markdown) => persistMarkdown(markdown),
+    (markdown, fileRef) => persistMarkdown(markdown, fileRef),
     // delay in ms
     500
   );
@@ -59,13 +59,18 @@ export const RemirrorComponent = ({
   const handleMarkdownChange = (markdown: string) => {
     const updatedFile = selectedFile?.updateFileContent(markdown).getCopy();
     setSelectedFile(updatedFile); //updating state to cause rerender (direct updates to objects/objecttree do not cause rerender)
-    debouncedPersistMarkdown(markdown);
+    // Pass the current file reference to the debounced function to avoid race conditions
+    debouncedPersistMarkdown(markdown, selectedFile);
   };
 
-  const persistMarkdown = async (markdown: string) => {
-    selectedFile?.updateFileContent(markdown);
-    await selectedFile?.saveFileContent();
-    setSelectedFile(selectedFile.getCopy()); //updating state to cause rerender (direct updates to objects/objecttree do not cause rerender)
+  const persistMarkdown = async (markdown: string, fileRef: DirectoryNode) => {
+    // Use the captured file reference, not the potentially stale selectedFile from closure
+    fileRef.updateFileContent(markdown);
+    await fileRef.saveFileContent();
+    // Only update state if this file is still the selected file
+    if (selectedFile.getId() === fileRef.getId()) {
+      setSelectedFile(fileRef.getCopy()); //updating state to cause rerender (direct updates to objects/objecttree do not cause rerender)
+    }
   };
 
   const customUploadHandler = (files: FileWithProgress[]): DelayedImage[] => {

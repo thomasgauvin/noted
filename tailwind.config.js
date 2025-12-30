@@ -1,3 +1,7 @@
+import tailwindScrollbar from "tailwind-scrollbar";
+import tailwindBgPatterns from "tailwindcss-bg-patterns";
+import tailwindTypography from "@tailwindcss/typography";
+
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: "class",
@@ -21,12 +25,12 @@ export default {
     },
   },
   plugins: [
-    require("@tailwindcss/typography"),
-    require("tailwind-scrollbar")({
+    tailwindTypography,
+    tailwindScrollbar({
       nocompatible: true,
       preferredStrategy: "pseudoelements",
     }),
-    require("tailwindcss-bg-patterns"),
+    tailwindBgPatterns,
   ],
 };
 
